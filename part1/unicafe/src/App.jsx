@@ -4,13 +4,13 @@ const Button = ({ label, onClick }) => {
   return <button onClick={onClick}>{label}</button>;
 };
 
-const Statistic = ({ label, value, unit }) => {
+const StatisticLine = ({ label, value, unit }) => {
   return (
-    <div>
-      <span>{label} </span>
-      <span>{value}</span>
-      <span> {unit}</span>
-    </div>
+    <tr>
+      <td>{label}</td>
+      <td>{value}</td>
+      <td>{unit}</td>
+    </tr>
   );
 };
 
@@ -27,14 +27,16 @@ const Statistics = ({
     <div>
       <h1>statistics</h1>
       {statisticsShown ? (
-        <div>
-          <Statistic label="good" value={good} />
-          <Statistic label="neutral" value={neutral} />
-          <Statistic label="bad" value={bad} />
-          <Statistic label="all" value={total} />
-          <Statistic label="average" value={averageScore} />
-          <Statistic label="positive" value={positiveRate} unit="%" />
-        </div>
+        <table>
+          <tbody>
+            <StatisticLine label="good" value={good} />
+            <StatisticLine label="neutral" value={neutral} />
+            <StatisticLine label="bad" value={bad} />
+            <StatisticLine label="all" value={total} />
+            <StatisticLine label="average" value={averageScore} />
+            <StatisticLine label="positive" value={positiveRate} unit="%" />
+          </tbody>
+        </table>
       ) : (
         <p>No feedback given</p>
       )}
