@@ -2,7 +2,7 @@ My submissions for FullStackOpen course by University of Helsinki
 
 <!-- To quickstart React project -->
 
-npm create vite@latest part1 -- --template react
+npm create vite@latest -- --template react projectName
 
 <!-- Install json-server globally -->
 
