@@ -3,12 +3,14 @@ import Persons from "./components/Persons";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import personService from "./services/persons";
+import Notification from "./components/Notification";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newPhone, setNewPhone] = useState("");
   const [filter, setFilter] = useState("");
+  const [notification, setNotification] = useState();
 
   useEffect(() => {
     personService.getAllPersons().then((initialPersons) => {
@@ -31,19 +33,36 @@ const App = () => {
         };
         personService
           .updatePerson(existingPerson.id, newPerson)
-          .then(() =>
+          .then(() => {
             setPersons((prevPersons) =>
               prevPersons.map((person) =>
                 person.id === existingPerson.id ? newPerson : person
               )
-            )
-          );
+            );
+            setNotification({ message: `Updated ${newName}`, type: "success" });
+            setTimeout(() => {
+              setNotification(null);
+            }, 5000);
+          })
+          .catch(() => {
+            setNotification({
+              message: `Information of ${newName} has already been removed from server`,
+              type: "error",
+            });
+            setTimeout(() => {
+              setNotification(null);
+            }, 5000);
+          });
       } else return;
     } else {
       const newPerson = { name: newName, number: newPhone };
-      personService
-        .createPerson(newPerson)
-        .then(() => setPersons(persons.concat([newPerson])));
+      personService.createPerson(newPerson).then(() => {
+        setPersons(persons.concat([newPerson]));
+        setNotification({ message: `Added ${newName}`, type: "success" });
+        setTimeout(() => {
+          setNotification(null);
+        }, 5000);
+      });
     }
     setNewName("");
     setNewPhone("");
@@ -64,6 +83,7 @@ const App = () => {
       <h2>Phonebook</h2>
       <Filter value={filter} onChange={handleFilterChange} />
       <h3>add a new</h3>
+      <Notification notification={notification} />
       <PersonForm
         onChangeName={handleNameChange}
         onChangePhone={handlePhoneChange}

@@ -19,7 +19,7 @@ const Persons = ({ persons, setPersons, filter }) => {
   return (
     <>
       {filteredPersons.map((person) => (
-        <p key={person.id}>
+        <p key={person.name}>
           <span>{person.name} </span>
           <span>{person.number}</span>
           <button onClick={() => handleDeletePerson(person)}>delete</button>
