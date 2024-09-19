@@ -44,9 +44,9 @@ const App = () => {
               setNotification(null);
             }, 5000);
           })
-          .catch(() => {
+          .catch((error) => {
             setNotification({
-              message: `Information of ${newName} has already been removed from server`,
+              message: error.response.data.error,
               type: "error",
             });
             setTimeout(() => {
@@ -56,13 +56,24 @@ const App = () => {
       } else return;
     } else {
       const newPerson = { name: newName, number: newPhone };
-      personService.createPerson(newPerson).then(() => {
-        setPersons(persons.concat([newPerson]));
-        setNotification({ message: `Added ${newName}`, type: "success" });
-        setTimeout(() => {
-          setNotification(null);
-        }, 5000);
-      });
+      personService
+        .createPerson(newPerson)
+        .then((res) => {
+          setPersons(persons.concat([{ ...newPerson, id: res.id }]));
+          setNotification({ message: `Added ${newName}`, type: "success" });
+          setTimeout(() => {
+            setNotification(null);
+          }, 5000);
+        })
+        .catch((error) => {
+          setNotification({
+            message: error.response.data.error,
+            type: "error",
+          });
+          setTimeout(() => {
+            setNotification(null);
+          }, 5000);
+        });
     }
     setNewName("");
     setNewPhone("");
