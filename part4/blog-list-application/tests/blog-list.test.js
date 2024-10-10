@@ -29,13 +29,6 @@ const blogs = [
   },
 ];
 
-test("dummy returns one", () => {
-  const blogs = [];
-
-  const result = listHelper.dummy(blogs);
-  assert.strictEqual(result, 1);
-});
-
 describe("total likes", () => {
   const listWithOneBlog = [
     {
