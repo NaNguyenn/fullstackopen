@@ -75,7 +75,7 @@ test("a blog added without likes defaults to 0", async () => {
   assert.strictEqual(addedBlog.likes, 0);
 });
 
-test.only("blog without title or url is bad request", async () => {
+test("blog without title or url is bad request", async () => {
   const blogWithoutTitle = {
     author: "Edsger W. Dijkstra",
     url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
@@ -91,6 +91,67 @@ test.only("blog without title or url is bad request", async () => {
 
   const blogsAtEnd = await helper.blogsInDb();
   assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
+});
+
+test("a blog can be deleted", async () => {
+  const blogsAtStart = await helper.blogsInDb();
+  const blogToDelete = blogsAtStart[0];
+
+  await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204);
+
+  const blogsAtEnd = await helper.blogsInDb();
+  assert.strictEqual(blogsAtEnd.length, blogsAtStart.length - 1);
+
+  const titles = blogsAtEnd.map((b) => b.title);
+  assert.ok(!titles.includes(blogToDelete.title));
+});
+
+test("deleting a blog with invalid id returns 400", async () => {
+  const invalidId = "invalid-id";
+
+  await api.delete(`/api/blogs/${invalidId}`).expect(400);
+
+  const blogsAtEnd = await helper.blogsInDb();
+  assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
+});
+
+test("deleting a blog with nonexistent id returns 204", async () => {
+  const nonExistentId = await helper.nonExistingId();
+
+  await api.delete(`/api/blogs/${nonExistentId}`).expect(204);
+
+  const blogsAtEnd = await helper.blogsInDb();
+  assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
+});
+
+test("blog can be updated", async () => {
+  const blogsAtStart = await helper.blogsInDb();
+  const blogToUpdate = blogsAtStart[0];
+
+  const updatedBlog = {
+    title: "Updated Blog Title",
+    author: "Updated Author",
+    url: "http://example.com",
+    likes: 99,
+  };
+
+  await api.put(`/api/blogs/${blogToUpdate.id}`).send(updatedBlog).expect(200);
+
+  const blogsAtEnd = await helper.blogsInDb();
+  const updatedBlogInDb = blogsAtEnd.find(
+    (blog) => blog.id === blogToUpdate.id
+  );
+
+  assert.deepStrictEqual(updatedBlogInDb.title, updatedBlog.title);
+  assert.deepStrictEqual(updatedBlogInDb.author, updatedBlog.author);
+  assert.deepStrictEqual(updatedBlogInDb.url, updatedBlog.url);
+  assert.deepStrictEqual(updatedBlogInDb.likes, updatedBlog.likes);
+});
+
+test("fails with status code 400 id is invalid", async () => {
+  const invalidId = "invalididda";
+
+  await api.put(`/api/blogs/${invalidId}`).send({}).expect(400);
 });
 
 after(async () => {
