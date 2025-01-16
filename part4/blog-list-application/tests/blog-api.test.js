@@ -16,7 +16,7 @@ beforeEach(async () => {
   await Promise.all(promiseArray);
 });
 
-test("blogs returned as json", async () => {
+test.only("blogs returned as json", async () => {
   await api
     .get("/api/blogs")
     .expect(200)
@@ -93,7 +93,7 @@ test("blog without title or url is bad request", async () => {
   assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
 });
 
-test("a blog can be deleted", async () => {
+test.only("a blog can be deleted", async () => {
   const blogsAtStart = await helper.blogsInDb();
   const blogToDelete = blogsAtStart[0];
 
@@ -106,7 +106,7 @@ test("a blog can be deleted", async () => {
   assert.ok(!titles.includes(blogToDelete.title));
 });
 
-test("deleting a blog with invalid id returns 400", async () => {
+test.only("deleting a blog with invalid id returns 400", async () => {
   const invalidId = "invalid-id";
 
   await api.delete(`/api/blogs/${invalidId}`).expect(400);
@@ -115,7 +115,7 @@ test("deleting a blog with invalid id returns 400", async () => {
   assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
 });
 
-test("deleting a blog with nonexistent id returns 204", async () => {
+test.only("deleting a blog with nonexistent id returns 204", async () => {
   const nonExistentId = await helper.nonExistingId();
 
   await api.delete(`/api/blogs/${nonExistentId}`).expect(204);
