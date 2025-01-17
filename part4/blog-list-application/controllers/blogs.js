@@ -1,23 +1,31 @@
 const blogsRouter = require("express").Router();
 const Blog = require("../models/blog");
+const User = require("../models/user");
 
+// get all blogs
 blogsRouter.get("/", async (request, response) => {
   const blogs = await Blog.find({});
   response.json(blogs);
 });
 
+// add new blog
 blogsRouter.post("/", async (request, response, next) => {
   const body = request.body;
+
+  const user = await User.findById(body.userId);
 
   const blog = new Blog({
     title: body.title,
     author: body.author,
     url: body.url,
     likes: body.likes || 0,
+    user: user.id,
   });
 
   try {
     const savedBlog = await blog.save();
+    user.blogs = user.blogs.concat(savedBlog._id);
+    await user.save();
 
     response.status(201).json(savedBlog);
   } catch (error) {
@@ -25,6 +33,7 @@ blogsRouter.post("/", async (request, response, next) => {
   }
 });
 
+// delete a blog
 blogsRouter.delete("/:id", async (request, response, next) => {
   const id = request.params.id;
   try {
@@ -35,6 +44,7 @@ blogsRouter.delete("/:id", async (request, response, next) => {
   }
 });
 
+// update a blog
 blogsRouter.put("/:id", async (request, response, next) => {
   const body = request.body;
 
