@@ -3,6 +3,8 @@ const assert = require("node:assert");
 const mongoose = require("mongoose");
 const supertest = require("supertest");
 const app = require("../app");
+const bcrypt = require("bcrypt");
+const User = require("../models/user");
 const Blog = require("../models/blog");
 const helper = require("./test-helper");
 
@@ -10,13 +12,21 @@ const api = supertest(app);
 
 beforeEach(async () => {
   await Blog.deleteMany({});
+  await User.deleteMany({});
 
-  const blogObjects = helper.initialBlogs.map((blog) => new Blog(blog));
+  const passwordHash = await bcrypt.hash("sekret", 10);
+  const user = new User({ username: "root", passwordHash });
+  const savedUser = await user.save();
+
+  const blogObjects = helper.initialBlogs.map(
+    (blog) => new Blog({ ...blog, user: savedUser._id.toString() })
+  );
+
   const promiseArray = blogObjects.map((blog) => blog.save());
   await Promise.all(promiseArray);
 });
 
-test.only("blogs returned as json", async () => {
+test("blogs returned as json", async () => {
   await api
     .get("/api/blogs")
     .expect(200)
@@ -93,7 +103,7 @@ test("blog without title or url is bad request", async () => {
   assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
 });
 
-test.only("a blog can be deleted", async () => {
+test("a blog can be deleted", async () => {
   const blogsAtStart = await helper.blogsInDb();
   const blogToDelete = blogsAtStart[0];
 
@@ -106,7 +116,7 @@ test.only("a blog can be deleted", async () => {
   assert.ok(!titles.includes(blogToDelete.title));
 });
 
-test.only("deleting a blog with invalid id returns 400", async () => {
+test("deleting a blog with invalid id returns 400", async () => {
   const invalidId = "invalid-id";
 
   await api.delete(`/api/blogs/${invalidId}`).expect(400);
@@ -115,7 +125,7 @@ test.only("deleting a blog with invalid id returns 400", async () => {
   assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
 });
 
-test.only("deleting a blog with nonexistent id returns 204", async () => {
+test("deleting a blog with nonexistent id returns 204", async () => {
   const nonExistentId = await helper.nonExistingId();
 
   await api.delete(`/api/blogs/${nonExistentId}`).expect(204);
