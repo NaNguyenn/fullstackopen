@@ -61,6 +61,28 @@ describe("when there is initially one user in db", () => {
 
     assert.strictEqual(usersAtEnd.length, usersAtStart.length);
   });
+
+  test.only("user with username and password less than 3 characters is bad request", async () => {
+    const usersAtStart = await helper.usersInDb();
+
+    const userWithUsernameTooShort = {
+      username: "ab",
+      name: "da",
+      password: "testing",
+    };
+    const userWithPasswordTooShort = {
+      username: "abadad",
+      name: "da",
+      password: "te",
+    };
+
+    await api.post("/api/users").send(userWithUsernameTooShort).expect(400);
+
+    await api.post("/api/users").send(userWithPasswordTooShort).expect(400);
+
+    const usersAtEnd = await helper.usersInDb();
+    assert.strictEqual(usersAtEnd.length, usersAtStart.length);
+  });
 });
 
 after(async () => {
