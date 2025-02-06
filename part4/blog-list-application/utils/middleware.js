@@ -34,7 +34,7 @@ const errorHandler = (error, request, response, next) => {
   next(error);
 };
 
-const tokenExtractor = (request, response, next) => {
+const userExtractor = (request, response, next) => {
   try {
     const authorization = request.get("Authorization");
     if (!authorization || !authorization.startsWith("Bearer ")) {
@@ -59,5 +59,5 @@ module.exports = {
   requestLogger,
   unknownEndpoint,
   errorHandler,
-  tokenExtractor,
+  userExtractor,
 };
