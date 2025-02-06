@@ -13,13 +13,13 @@ describe("when there is initially one user in db", () => {
   beforeEach(async () => {
     await User.deleteMany({});
 
-    const passwordHash = await bcrypt.hash("sekret", 10);
-    const user = new User({ username: "root", passwordHash });
+    const passwordHash = await bcrypt.hash("admin", 10);
+    const user = new User({ username: "admin", passwordHash });
 
     await user.save();
   });
 
-  test.only("creation succeeds with a fresh username", async () => {
+  test("creation succeeds with a fresh username", async () => {
     const usersAtStart = await helper.usersInDb();
 
     const newUser = {
@@ -41,7 +41,7 @@ describe("when there is initially one user in db", () => {
     assert(usernames.includes(newUser.username));
   });
 
-  test.only("creation fails with proper statuscode and message if username already taken", async () => {
+  test("creation fails with proper statuscode and message if username already taken", async () => {
     const usersAtStart = await helper.usersInDb();
 
     const newUser = {
@@ -62,7 +62,7 @@ describe("when there is initially one user in db", () => {
     assert.strictEqual(usersAtEnd.length, usersAtStart.length);
   });
 
-  test.only("user with username and password less than 3 characters is bad request", async () => {
+  test("user with username and password less than 3 characters is bad request", async () => {
     const usersAtStart = await helper.usersInDb();
 
     const userWithUsernameTooShort = {

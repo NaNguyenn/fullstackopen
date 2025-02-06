@@ -10,6 +10,16 @@ const helper = require("./test-helper");
 
 const api = supertest(app);
 
+const loginUser = async () => {
+  const user = {
+    username: "root",
+    password: "sekret",
+  };
+
+  const response = await api.post("/api/login").send(user);
+  return response.body.token;
+};
+
 beforeEach(async () => {
   await Blog.deleteMany({});
   await User.deleteMany({});
@@ -27,20 +37,31 @@ beforeEach(async () => {
 });
 
 test("blogs returned as json", async () => {
+  const token = await loginUser();
+
   await api
     .get("/api/blogs")
+    .set("Authorization", `Bearer ${token}`)
     .expect(200)
     .expect("Content-Type", /application\/json/);
 });
 
 test("all blogs returned", async () => {
-  const response = await api.get("/api/blogs");
+  const token = await loginUser();
+
+  const response = await api
+    .get("/api/blogs")
+    .set("Authorization", `Bearer ${token}`);
 
   assert.strictEqual(response.body.length, helper.initialBlogs.length);
 });
 
 test("all blogs returned have unique id", async () => {
-  const response = await api.get("/api/blogs");
+  const token = await loginUser();
+
+  const response = await api
+    .get("/api/blogs")
+    .set("Authorization", `Bearer ${token}`);
   const uniqueIds = new Set(response.body.map((blog) => blog.id));
   assert.strictEqual(uniqueIds.size, response.body.length);
 });
@@ -52,8 +73,11 @@ test("a valid blog can be added", async () => {
     url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
   };
 
+  const token = await loginUser();
+
   await api
     .post("/api/blogs")
+    .set("Authorization", `Bearer ${token}`)
     .send(newBlog)
     .expect(201)
     .expect("Content-Type", /application\/json/);
@@ -66,6 +90,16 @@ test("a valid blog can be added", async () => {
   assert(blogTitles.includes(newBlog.title));
 });
 
+test("adding a blog fails with status code 401 if token is not provided", async () => {
+  const newBlog = {
+    title: "Go To Statement",
+    author: "Edsger W. Dijkstra",
+    url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
+  };
+
+  await api.post("/api/blogs").send(newBlog).expect(401);
+});
+
 test("a blog added without likes defaults to 0", async () => {
   const newBlog = {
     title: "Go To Statement",
@@ -73,8 +107,11 @@ test("a blog added without likes defaults to 0", async () => {
     url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
   };
 
+  const token = await loginUser();
+
   await api
     .post("/api/blogs")
+    .set("Authorization", `Bearer ${token}`)
     .send(newBlog)
     .expect(201)
     .expect("Content-Type", /application\/json/);
@@ -95,19 +132,34 @@ test("blog without title or url is bad request", async () => {
     author: "Edsger W. Dijkstra",
   };
 
-  await api.post("/api/blogs").send(blogWithoutTitle).expect(400);
+  const token = await loginUser();
 
-  await api.post("/api/blogs").send(blogWIthoutUrl).expect(400);
+  await api
+    .post("/api/blogs")
+    .set("Authorization", `Bearer ${token}`)
+    .send(blogWithoutTitle)
+    .expect(400);
+
+  await api
+    .post("/api/blogs")
+    .set("Authorization", `Bearer ${token}`)
+    .send(blogWIthoutUrl)
+    .expect(400);
 
   const blogsAtEnd = await helper.blogsInDb();
   assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
 });
 
-test("a blog can be deleted", async () => {
+test.only("a blog can be deleted", async () => {
   const blogsAtStart = await helper.blogsInDb();
   const blogToDelete = blogsAtStart[0];
 
-  await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204);
+  const token = await loginUser();
+
+  await api
+    .delete(`/api/blogs/${blogToDelete.id}`)
+    .set("Authorization", `Bearer ${token}`)
+    .expect(204);
 
   const blogsAtEnd = await helper.blogsInDb();
   assert.strictEqual(blogsAtEnd.length, blogsAtStart.length - 1);
@@ -116,22 +168,38 @@ test("a blog can be deleted", async () => {
   assert.ok(!titles.includes(blogToDelete.title));
 });
 
-test("deleting a blog with invalid id returns 400", async () => {
-  const invalidId = "invalid-id";
+test.only("deleting a blog with invalid id returns 400", async () => {
+  const invalidId = "invalidid";
 
-  await api.delete(`/api/blogs/${invalidId}`).expect(400);
+  const token = await loginUser();
+
+  await api
+    .delete(`/api/blogs/${invalidId}`)
+    .set("Authorization", `Bearer ${token}`)
+    .expect(400);
 
   const blogsAtEnd = await helper.blogsInDb();
   assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
 });
 
-test("deleting a blog with nonexistent id returns 204", async () => {
-  const nonExistentId = await helper.nonExistingId();
+test.only("deleting a blog with nonexistent id returns 204", async () => {
+  const token = await loginUser();
+  const blogsAtStart = await helper.blogsInDb();
+  const blogToDelete = blogsAtStart[0];
 
-  await api.delete(`/api/blogs/${nonExistentId}`).expect(204);
+  await api
+    .delete(`/api/blogs/${blogToDelete.id}`)
+    .set("Authorization", `Bearer ${token}`);
+
+  const nonExistentId = blogToDelete.id;
+
+  await api
+    .delete(`/api/blogs/${nonExistentId}`)
+    .set("Authorization", `Bearer ${token}`)
+    .expect(204);
 
   const blogsAtEnd = await helper.blogsInDb();
-  assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
+  assert.strictEqual(blogsAtEnd.length, blogsAtStart.length - 1);
 });
 
 test("blog can be updated", async () => {
