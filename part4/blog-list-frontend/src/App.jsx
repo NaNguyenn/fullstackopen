@@ -1,24 +1,55 @@
-import { useState, useEffect } from 'react'
-import Blog from './components/Blog'
-import blogService from './services/blogs'
+import { useState, useEffect } from "react";
+import Blog from "./components/Blog";
+import blogService from "./services/blogs";
+import LoginForm from "./components/LoginForm";
+import Notification from "./components/Notification";
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
+  const [blogs, setBlogs] = useState([]);
+  const [user, setUser] = useState();
+  const [notification, setNotification] = useState();
 
   useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs( blogs )
-    )  
-  }, [])
+    const loggedUserJSON = window.localStorage.getItem("loggedUser");
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON);
+      setUser(user);
+      blogService.setToken(user.token);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      blogService.getAll().then((blogs) => setBlogs(blogs));
+    }
+  }, [user]);
+
+  const handleLogout = () => {
+    window.localStorage.removeItem("loggedUser");
+    setUser(null);
+    blogService.setToken(null);
+  };
 
   return (
     <div>
-      <h2>blogs</h2>
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+      <Notification notification={notification} />
+      {user ? (
+        <>
+          <h2>blogs</h2>
+          <span>{user.name}</span>
+          <button onClick={handleLogout}>logout</button>
+          {blogs.map((blog) => (
+            <Blog key={blog.id} blog={blog} />
+          ))}
+        </>
+      ) : (
+        <LoginForm
+          handleUpdateUser={setUser}
+          handleUpdateNotification={setNotification}
+        />
       )}
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;
