@@ -1,42 +1,24 @@
 import { useState } from "react";
-import blogService from "../services/blogs";
 
-const CreateBlogForm = ({
-  handleUpdateNotification,
-  handleUpdateBlogs,
-  blogs,
-}) => {
+const CreateBlogForm = ({ handleAddBlog }) => {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [url, setUrl] = useState("");
 
-  const handleCreateBlog = async (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-
-    try {
-      const blog = await blogService.createBlog({
-        title,
-        author,
-        url,
-      });
-      setTitle("");
-      setAuthor("");
-      setUrl("");
-      handleUpdateNotification({
-        message: `A new blog titled ${blog.title} by ${blog.author} was added`,
-        type: "success",
-      });
-      handleUpdateBlogs(blogs.concat(blog));
-    } catch (exception) {
-      handleUpdateNotification({
-        message: "Error adding new blog",
-        type: "error",
-      });
-    }
+    handleAddBlog({
+      title,
+      author,
+      url,
+    });
+    setTitle("");
+    setAuthor("");
+    setUrl("");
   };
 
   return (
-    <form onSubmit={handleCreateBlog}>
+    <form onSubmit={handleSubmit}>
       <div>
         title
         <input
