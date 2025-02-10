@@ -3,6 +3,7 @@ import Blog from "./components/Blog";
 import blogService from "./services/blogs";
 import LoginForm from "./components/LoginForm";
 import Notification from "./components/Notification";
+import CreateBlogForm from "./components/CreateBlogForm";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
@@ -32,12 +33,20 @@ const App = () => {
 
   return (
     <div>
-      <Notification notification={notification} />
+      <Notification
+        notification={notification}
+        handleUpdateNotification={setNotification}
+      />
       {user ? (
         <>
           <h2>blogs</h2>
           <span>{user.name}</span>
           <button onClick={handleLogout}>logout</button>
+          <h2>create new</h2>
+          <CreateBlogForm
+            handleUpdateNotification={setNotification}
+            handleUpdateBlogs={setBlogs}
+          />
           {blogs.map((blog) => (
             <Blog key={blog.id} blog={blog} />
           ))}

@@ -19,14 +19,11 @@ const LoginForm = ({ handleUpdateUser, handleUpdateNotification }) => {
       setUsername("");
       setPassword("");
       handleUpdateNotification({ message: "Logged in", type: "success" });
-      setTimeout(() => {
-        handleUpdateNotification(null);
-      }, 3000);
     } catch (exception) {
-      handleUpdateNotification({ message: "Wrong credentials", type: "error" });
-      setTimeout(() => {
-        handleUpdateNotification(null);
-      }, 3000);
+      handleUpdateNotification({
+        message: "Wrong username or password",
+        type: "error",
+      });
     }
   };
 
