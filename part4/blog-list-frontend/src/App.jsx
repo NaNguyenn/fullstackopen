@@ -39,12 +39,13 @@ const App = () => {
 
   const handleAddBlog = async (blogObject) => {
     try {
-      const blog = await blogService.createBlog(blogObject);
+      const addedBlog = await blogService.createBlog(blogObject);
       setNotification({
-        message: `A new blog titled ${blog.title} by ${blog.author} was added`,
+        message: `A new blog titled ${addedBlog.title} by ${addedBlog.author} was added`,
         type: "success",
       });
-      setBlogs(blogs.concat(blog));
+      const addedBlogWithUserInfo = { ...addedBlog, user: { name: user.name } };
+      setBlogs(blogs.concat(addedBlogWithUserInfo));
       blogFormRef.current.toggleVisibility();
     } catch (exception) {
       setNotification({
