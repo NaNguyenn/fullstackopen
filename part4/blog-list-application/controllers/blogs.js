@@ -70,19 +70,38 @@ blogsRouter.delete("/:id", async (request, response, next) => {
 blogsRouter.put("/:id", async (request, response, next) => {
   const body = request.body;
 
-  const blog = {
-    title: body.title,
-    author: body.author,
-    url: body.url,
-    likes: body.likes,
-  };
-
   try {
-    const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, {
-      new: true,
-      runValidators: true,
-      context: "query",
-    });
+    const user = await User.findById(request.user.id);
+    const blog = await Blog.findById(request.params.id);
+
+    if (!blog) {
+      return response.status(404).json({ error: "Blog not found" });
+    }
+
+    if (blog.user.toString() !== user._id.toString()) {
+      return response
+        .status(403)
+        .json({ error: "You are not authorized to update this blog" });
+    }
+
+    const updatedBlogData = {
+      title: body.title,
+      author: body.author,
+      url: body.url,
+      likes: body.likes,
+      user: user._id,
+    };
+
+    const updatedBlog = await Blog.findByIdAndUpdate(
+      request.params.id,
+      updatedBlogData,
+      {
+        new: true,
+        runValidators: true,
+        context: "query",
+      }
+    );
+
     response.json(updatedBlog);
   } catch (error) {
     next(error);
