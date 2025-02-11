@@ -1,6 +1,7 @@
 import { useState } from "react";
 import loginService from "../services/login";
 import blogService from "../services/blogs";
+import PropTypes from "prop-types";
 
 const LoginForm = ({ handleUpdateUser, handleUpdateNotification }) => {
   const [username, setUsername] = useState("");
@@ -50,6 +51,11 @@ const LoginForm = ({ handleUpdateUser, handleUpdateNotification }) => {
       <button type="submit">login</button>
     </form>
   );
+};
+
+LoginForm.propTypes = {
+  handleUpdateUser: PropTypes.func.isRequired,
+  handleUpdateNotification: PropTypes.func.isRequired,
 };
 
 export default LoginForm;
