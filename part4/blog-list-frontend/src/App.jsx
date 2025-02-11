@@ -31,6 +31,8 @@ const App = () => {
     }
   }, [user]);
 
+  const sortedBlogs = blogs.sort((a, b) => b.likes - a.likes);
+
   const handleLogout = () => {
     window.localStorage.removeItem("loggedUser");
     setUser(null);
@@ -70,7 +72,7 @@ const App = () => {
           <Toggleable buttonLabel="new blog" ref={blogFormRef}>
             <CreateBlogForm handleAddBlog={handleAddBlog} />
           </Toggleable>
-          {blogs.map((blog) => (
+          {sortedBlogs.map((blog) => (
             <Blog
               key={blog.id}
               blog={blog}
