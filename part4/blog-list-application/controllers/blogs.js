@@ -71,17 +71,10 @@ blogsRouter.put("/:id", async (request, response, next) => {
   const body = request.body;
 
   try {
-    const user = await User.findById(request.user.id);
     const blog = await Blog.findById(request.params.id);
 
     if (!blog) {
       return response.status(404).json({ error: "Blog not found" });
-    }
-
-    if (blog.user.toString() !== user._id.toString()) {
-      return response
-        .status(403)
-        .json({ error: "You are not authorized to update this blog" });
     }
 
     const updatedBlogData = {
@@ -89,7 +82,7 @@ blogsRouter.put("/:id", async (request, response, next) => {
       author: body.author,
       url: body.url,
       likes: body.likes,
-      user: user._id,
+      user: blog.user,
     };
 
     const updatedBlog = await Blog.findByIdAndUpdate(
