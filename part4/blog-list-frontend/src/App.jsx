@@ -57,6 +57,23 @@ const App = () => {
     }
   };
 
+  const handleDeleteBlog = async (deletingBlog) => {
+    const confirmation = confirm(
+      `Remove blog ${deletingBlog.title} by ${deletingBlog.author}`
+    );
+    if (confirmation) {
+      try {
+        await blogService.deleteBlog(deletingBlog.id);
+        setBlogs(blogs.filter((blog) => blog.id !== deletingBlog.id));
+      } catch (err) {
+        setNotification({
+          message: "Error deleting blog",
+          type: "error",
+        });
+      }
+    } else return;
+  };
+
   return (
     <div>
       <Notification
@@ -77,6 +94,8 @@ const App = () => {
               key={blog.id}
               blog={blog}
               handleUpdateNotification={setNotification}
+              user={user}
+              handleDeleteBlog={handleDeleteBlog}
             />
           ))}
         </>
