@@ -28,7 +28,7 @@ const Blog = ({ blog, handleUpdateNotification, user, handleDeleteBlog }) => {
   };
 
   return (
-    <>
+    <div data-testid="blog">
       <div>
         {blog.title} {blog.author}
         <button onClick={toggleIsDetailShown}>
@@ -43,12 +43,12 @@ const Blog = ({ blog, handleUpdateNotification, user, handleDeleteBlog }) => {
             <button onClick={handleLike}>like</button>
           </div>
           <div>{blog.user.name}</div>
-          {user.username === blog.user.username && (
+          {user?.username === blog.user.username && (
             <button onClick={() => handleDeleteBlog(blog)}>delete</button>
           )}
         </div>
       )}
-    </>
+    </div>
   );
 };
 
