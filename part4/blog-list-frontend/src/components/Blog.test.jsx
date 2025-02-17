@@ -55,3 +55,34 @@ test("<Blog /> renders url and likes after clicking the 'view' button", async ()
   expect(urlElement).toBeInTheDocument();
   expect(likesElement).toBeInTheDocument();
 });
+
+test("<Blog /> clicking the like button twice calls the event handler twice", async () => {
+  const blog = {
+    title: "Component testing is done with react-testing-library",
+    author: "Edsger W. Dijkstra",
+    url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
+    likes: 1,
+    user: {
+      username: "first",
+      name: "Matti Luukkainen",
+      id: "678a2458c3c9bd4f50bdefd8",
+    },
+    id: "678a2e379c3089cad37a2941",
+  };
+
+  const mockHandleLike = vi.fn();
+
+  render(<Blog blog={blog} handleUpdateNotification={mockHandleLike} />);
+
+  const user = userEvent.setup();
+  const viewButton = screen.getByText("view");
+
+  await user.click(viewButton);
+
+  const likeButton = screen.getByText("like");
+
+  await user.click(likeButton);
+  await user.click(likeButton);
+
+  expect(mockHandleLike).toHaveBeenCalledTimes(2);
+});
