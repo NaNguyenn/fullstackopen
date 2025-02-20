@@ -7,6 +7,7 @@
     "dev": "cross-env NODE_ENV=development nodemon index.js",
     "test": "cross-env NODE_ENV=test node --test",
     "test-only": "cross-env NODE_ENV=test node --test --test-only",
+    "start:test": "cross-env NODE_ENV=test node index.js",
     "lint": "eslint ."
   },
   "author": "",
