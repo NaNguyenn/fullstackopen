@@ -26,6 +26,7 @@ const CreateBlogForm = ({ handleAddBlog }) => {
           value={title}
           name="Title"
           onChange={({ target }) => setTitle(target.value)}
+          data-testid="title-input"
         />
       </div>
       <div>
@@ -35,6 +36,7 @@ const CreateBlogForm = ({ handleAddBlog }) => {
           value={author}
           name="author"
           onChange={({ target }) => setAuthor(target.value)}
+          data-testid="author-input"
         />
       </div>
       <div>
@@ -44,6 +46,7 @@ const CreateBlogForm = ({ handleAddBlog }) => {
           value={url}
           name="url"
           onChange={({ target }) => setUrl(target.value)}
+          data-testid="url-input"
         />
       </div>
       <button type="submit">create</button>
