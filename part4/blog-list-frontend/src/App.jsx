@@ -46,7 +46,10 @@ const App = () => {
         message: `A new blog titled ${addedBlog.title} by ${addedBlog.author} was added`,
         type: "success",
       });
-      const addedBlogWithUserInfo = { ...addedBlog, user: { name: user.name } };
+      const addedBlogWithUserInfo = {
+        ...addedBlog,
+        user: { name: user.name, username: user.username },
+      };
       setBlogs(blogs.concat(addedBlogWithUserInfo));
       blogFormRef.current.toggleVisibility();
     } catch (exception) {
@@ -65,6 +68,10 @@ const App = () => {
       try {
         await blogService.deleteBlog(deletingBlog.id);
         setBlogs(blogs.filter((blog) => blog.id !== deletingBlog.id));
+        setNotification({
+          message: "Blog deleted successfully",
+          type: "success",
+        });
       } catch (err) {
         setNotification({
           message: "Error deleting blog",

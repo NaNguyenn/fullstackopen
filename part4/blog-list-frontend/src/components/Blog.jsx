@@ -30,7 +30,7 @@ const Blog = ({ blog, handleUpdateNotification, user, handleDeleteBlog }) => {
   return (
     <div data-testid="blog">
       <div>
-        {blog.title} {blog.author}
+        <span data-testid="blog-title">{blog.title}</span> {blog.author}
         <button onClick={toggleIsDetailShown}>
           {isDetailShown ? "hide" : "view"}
         </button>
