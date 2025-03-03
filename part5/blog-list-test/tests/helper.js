@@ -15,15 +15,12 @@ const createBlog = async (page, newBlog) => {
 };
 
 const likeBlog = async (page, title, times) => {
-  console.log("here", await page.getByText(title).locator(".."));
-  await page
-    .getByText(title)
-    .locator("..")
-    .getByRole("button", { name: "view" })
-    .click();
+  const blogLocator = page.getByTestId("blog").filter({ hasText: title });
+  await blogLocator.getByRole("button", { name: "view" }).click();
   for (let i = 0; i < times; i++) {
     await page.getByRole("button", { name: "like" }).click();
   }
+  await blogLocator.getByRole("button", { name: "hide" }).click();
 };
 
 export { loginWith, createBlog, likeBlog };

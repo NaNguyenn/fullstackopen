@@ -85,12 +85,15 @@ describe("Blog app", () => {
       await page.getByRole("button", { name: "logout" }).click();
       await loginWith(page, "admin", "admin");
 
-      const blogTitles = await page.getByTestId("blog-title").allTextContents();
-      expect(blogTitles).toEqual([
-        "Most liked blog",
-        "Medium liked blog",
-        "Least liked blog",
-      ]);
+      await expect(page.getByTestId("blog-title").first()).toHaveText(
+        "Most liked blog"
+      );
+      await expect(page.getByTestId("blog-title").nth(1)).toHaveText(
+        "Medium liked blog"
+      );
+      await expect(page.getByTestId("blog-title").nth(2)).toHaveText(
+        "Least liked blog"
+      );
     });
 
     describe("and a blog exists", () => {
