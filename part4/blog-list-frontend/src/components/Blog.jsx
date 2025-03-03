@@ -1,9 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import blogService from "../services/blogs";
 
 const Blog = ({ blog, handleUpdateNotification, user, handleDeleteBlog }) => {
   const [isDetailShown, setIsDetailShown] = useState("");
   const [likes, setLikes] = useState(blog.likes);
+
+  useEffect(() => {
+    setLikes(blog.likes);
+  }, [blog.likes]);
 
   const toggleIsDetailShown = () => {
     setIsDetailShown((prev) => !prev);
