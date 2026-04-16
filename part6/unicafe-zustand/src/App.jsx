@@ -1,5 +1,5 @@
-import Buttons from './components/Buttons'
-import Statistics from './components/Statistics'
+import Buttons from "./components/Buttons";
+import Statistics from "./components/Statistics";
 
 const App = () => {
   return (
@@ -8,7 +8,7 @@ const App = () => {
       <Buttons />
       <Statistics />
     </>
-  )
-}
+  );
+};
 
-export default App
+export default App;
