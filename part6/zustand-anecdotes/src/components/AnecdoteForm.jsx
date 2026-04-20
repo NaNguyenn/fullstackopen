@@ -3,15 +3,15 @@ import { useAnecdoteActions } from "../store";
 const AnecdoteForm = () => {
   const { add } = useAnecdoteActions();
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const content = e.target.elements.content.value;
+    add(content);
+    e.target.reset();
+  };
+
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        const content = e.target.elements.content.value;
-        add(content);
-        e.target.reset();
-      }}
-    >
+    <form onSubmit={handleSubmit}>
       <div>
         <input name="content" />
       </div>
