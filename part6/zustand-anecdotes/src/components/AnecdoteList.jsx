@@ -1,13 +1,20 @@
 import { useMemo } from "react";
-import { useAnecdoteActions, useAnecdotes } from "../store";
+import { useAnecdoteActions, useAnecdotes } from "../store/anecdotes";
+import { useNotificationActions } from "../store/notification";
 
 const AnecdoteList = () => {
   const anecdotes = useAnecdotes();
   const { vote } = useAnecdoteActions();
+  const { show } = useNotificationActions();
   const sortedAnecdotes = useMemo(
     () => anecdotes.toSorted((first, second) => second.votes - first.votes),
     [anecdotes],
   );
+
+  const handleVote = async (anecdote) => {
+    await vote(anecdote.id);
+    show(`You voted '${anecdote.content}'`);
+  };
 
   return (
     <>
@@ -16,7 +23,7 @@ const AnecdoteList = () => {
           <div>{anecdote.content}</div>
           <div>
             has {anecdote.votes}
-            <button onClick={() => vote(anecdote.id)}>vote</button>
+            <button onClick={() => handleVote(anecdote)}>vote</button>
           </div>
         </div>
       ))}
