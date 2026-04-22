@@ -23,6 +23,9 @@ export const useAnecdote = () => {
       );
       showNotification(`Anecdote "${newAnecdote.content}" created!`);
     },
+    onError: (err) => {
+      showNotification(err.message);
+    },
   });
 
   const updateAnecdoteMutation = useMutation({

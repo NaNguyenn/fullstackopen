@@ -23,7 +23,8 @@ const addAnecdote = async (content) => {
   const response = await fetch(baseUrl, options);
 
   if (!response.ok) {
-    throw new Error("Failed to create anecdote");
+    const errorData = await response.json().catch(() => null);
+    throw new Error(errorData?.error || "Failed to create anecdote");
   }
 
   const data = await response.json();
