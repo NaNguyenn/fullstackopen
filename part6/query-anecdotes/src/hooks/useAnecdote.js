@@ -1,8 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import anecdoteService from "../services/anecdotes";
+import useNotification from "./useNotification";
 
 export const useAnecdote = () => {
   const queryClient = useQueryClient();
+  const { showNotification } = useNotification();
 
   const result = useQuery({
     queryKey: ["anecdote-list"],
@@ -19,6 +21,7 @@ export const useAnecdote = () => {
         ["anecdote-list"],
         anecdotes.concat(newAnecdote),
       );
+      showNotification(`Anecdote "${newAnecdote.content}" created!`);
     },
   });
 
@@ -32,6 +35,7 @@ export const useAnecdote = () => {
           anecdote.id === updatedAnecdote.id ? updatedAnecdote : anecdote,
         ),
       );
+      showNotification(`Anecdote "${updatedAnecdote.content}" updated!`);
     },
   });
 
