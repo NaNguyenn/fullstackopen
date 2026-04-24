@@ -1,7 +1,7 @@
-import { useNotification } from "../store/notification";
+import { useSelector } from "react-redux";
 
 const Notification = () => {
-  const message = useNotification();
+  const message = useSelector((state) => state.notification.message);
 
   if (!message) {
     return null;

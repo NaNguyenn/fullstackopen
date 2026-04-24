@@ -1,15 +1,15 @@
-import { useAnecdoteActions } from "../store/anecdotes";
-import { useNotificationActions } from "../store/notification";
+import { useDispatch } from "react-redux";
+import { createAnecdote } from "../reducers/anecdoteReducer";
+import { showNotification } from "../reducers/notificationReducer";
 
 const AnecdoteForm = () => {
-  const { add } = useAnecdoteActions();
-  const { show } = useNotificationActions();
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const content = e.target.elements.content.value;
-    await add(content);
-    show(`You created '${content}'`);
+    await dispatch(createAnecdote(content));
+    dispatch(showNotification(`You created '${content}'`));
     e.target.reset();
   };
 

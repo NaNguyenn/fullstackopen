@@ -1,24 +1,28 @@
 import { useMemo } from "react";
-import { useAnecdoteActions, useAnecdotes } from "../store/anecdotes";
-import { useNotificationActions } from "../store/notification";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  deleteAnecdote,
+  selectFilteredAnecdotes,
+  voteAnecdote,
+} from "../reducers/anecdoteReducer";
+import { showNotification } from "../reducers/notificationReducer";
 
 const AnecdoteList = () => {
-  const anecdotes = useAnecdotes();
-  const { vote, delete: deleteAnecdote } = useAnecdoteActions();
-  const { show } = useNotificationActions();
+  const dispatch = useDispatch();
+  const anecdotes = useSelector(selectFilteredAnecdotes);
   const sortedAnecdotes = useMemo(
     () => anecdotes.toSorted((first, second) => second.votes - first.votes),
     [anecdotes],
   );
 
   const handleVote = async (anecdote) => {
-    await vote(anecdote.id);
-    show(`You voted '${anecdote.content}'`);
+    await dispatch(voteAnecdote(anecdote.id));
+    dispatch(showNotification(`You voted '${anecdote.content}'`));
   };
 
   const handleDelete = async (anecdote) => {
-    await deleteAnecdote(anecdote.id);
-    show(`You deleted '${anecdote.content}'`);
+    await dispatch(deleteAnecdote(anecdote.id));
+    dispatch(showNotification(`You deleted '${anecdote.content}'`));
   };
 
   return (

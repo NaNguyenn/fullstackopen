@@ -1,10 +1,11 @@
-import { useAnecdoteActions } from "../store/anecdotes";
+import { useDispatch } from "react-redux";
+import { setFilter } from "../reducers/anecdoteReducer";
 
 const Filter = () => {
-  const { setFilter } = useAnecdoteActions();
+  const dispatch = useDispatch();
 
   const handleChange = (event) => {
-    setFilter(event.target.value);
+    dispatch(setFilter(event.target.value));
   };
   const style = {
     marginBottom: 10,
