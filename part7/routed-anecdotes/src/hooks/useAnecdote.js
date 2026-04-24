@@ -8,5 +8,11 @@ export const useAnecdote = () => {
     anecdoteService.getAll().then((data) => setAnecdotes(data));
   }, []);
 
-  return { anecdotes };
+  const addAnecdote = (anecdote) => {
+    anecdoteService.createNew(anecdote).then((newAnecdote) => {
+      setAnecdotes(anecdotes.concat(newAnecdote));
+    });
+  };
+
+  return { anecdotes, addAnecdote };
 };
