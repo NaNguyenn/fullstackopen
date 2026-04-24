@@ -14,5 +14,11 @@ export const useAnecdote = () => {
     });
   };
 
-  return { anecdotes, addAnecdote };
+  const deleteAnecdote = (id) => {
+    anecdoteService.deleteAnecdote(id).then(() => {
+      setAnecdotes(anecdotes.filter((anecdote) => anecdote.id !== id));
+    });
+  };
+
+  return { anecdotes, addAnecdote, deleteAnecdote };
 };
