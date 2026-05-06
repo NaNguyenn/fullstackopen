@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef } from "react";
+
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Blog from "./components/Blog";
+import BlogDetail from "./components/BlogDetail";
 import blogService from "./services/blogs";
 import LoginForm from "./components/LoginForm";
 import Notification from "./components/Notification";
@@ -62,7 +65,7 @@ const App = () => {
 
   const handleDeleteBlog = async (deletingBlog) => {
     const confirmation = confirm(
-      `Remove blog ${deletingBlog.title} by ${deletingBlog.author}`
+      `Remove blog ${deletingBlog.title} by ${deletingBlog.author}`,
     );
     if (confirmation) {
       try {
@@ -82,39 +85,64 @@ const App = () => {
   };
 
   return (
-    <div>
+    <Router>
       <Notification
         notification={notification}
         handleUpdateNotification={setNotification}
       />
-      {user ? (
-        <>
-          <h2>blogs</h2>
-          <span>{user.name}</span>
-          <button onClick={handleLogout}>logout</button>
-          <h2>create new</h2>
-          <Toggleable buttonLabel="new blog" ref={blogFormRef}>
-            <CreateBlogForm handleAddBlog={handleAddBlog} />
-          </Toggleable>
-          {sortedBlogs.map((blog) => (
-            <Blog
-              key={blog.id}
-              blog={blog}
+      <div style={{ display: "flex", gap: "1rem" }}>
+        <Link to="/">blogs</Link>
+        {user ? (
+          <>
+            <Link to="/create">new blog</Link>
+            <button onClick={handleLogout}>logout</button>
+          </>
+        ) : (
+          <Link to="/login">login</Link>
+        )}
+      </div>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <>
+              <h2>blogs</h2>
+              {user && (
+                <>
+                  <h2>create new</h2>
+                  <Toggleable buttonLabel="new blog" ref={blogFormRef}>
+                    <CreateBlogForm handleAddBlog={handleAddBlog} />
+                  </Toggleable>
+                  {sortedBlogs.map((blog) => (
+                    <Blog key={blog.id} blog={blog} />
+                  ))}
+                </>
+              )}
+            </>
+          }
+        />
+        <Route
+          path="/blogs/:id"
+          element={
+            <BlogDetail
+              blogs={sortedBlogs}
               handleUpdateNotification={setNotification}
               user={user}
               handleDeleteBlog={handleDeleteBlog}
             />
-          ))}
-        </>
-      ) : (
-        <Toggleable buttonLabel="login">
-          <LoginForm
-            handleUpdateUser={setUser}
-            handleUpdateNotification={setNotification}
-          />
-        </Toggleable>
-      )}
-    </div>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <LoginForm
+              handleUpdateUser={setUser}
+              handleUpdateNotification={setNotification}
+            />
+          }
+        />
+      </Routes>
+    </Router>
   );
 };
 

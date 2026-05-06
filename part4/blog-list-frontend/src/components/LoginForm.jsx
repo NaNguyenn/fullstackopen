@@ -2,8 +2,10 @@ import { useState } from "react";
 import loginService from "../services/login";
 import blogService from "../services/blogs";
 import PropTypes from "prop-types";
+import { useNavigate } from "react-router-dom";
 
 const LoginForm = ({ handleUpdateUser, handleUpdateNotification }) => {
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const handleLogin = async (event) => {
@@ -20,6 +22,7 @@ const LoginForm = ({ handleUpdateUser, handleUpdateNotification }) => {
       setUsername("");
       setPassword("");
       handleUpdateNotification({ message: "Logged in", type: "success" });
+      navigate("/");
     } catch (exception) {
       handleUpdateNotification({
         message: "Wrong username or password",
