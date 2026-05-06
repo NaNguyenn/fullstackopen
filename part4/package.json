@@ -1,0 +1,12 @@
+{
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix blog-list-application\" \"npm run dev --prefix blog-list-frontend\"",
+    "dev:server": "npm run dev --prefix blog-list-application",
+    "dev:client": "npm run dev --prefix blog-list-frontend",
+    "build": "npm run build --prefix blog-list-frontend",
+    "start": "NODE_ENV=production npm start --prefix blog-list-application"
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.0"
+  }
+}

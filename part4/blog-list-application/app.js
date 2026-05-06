@@ -2,6 +2,7 @@ const config = require("./utils/config");
 const express = require("express");
 const app = express();
 const cors = require("cors");
+const path = require("path");
 const blogsRouter = require("./controllers/blogs");
 const usersRouter = require("./controllers/users");
 const loginRouter = require("./controllers/login");
@@ -23,13 +24,24 @@ mongoose
   });
 
 app.use(cors());
-app.use(express.static("dist"));
 app.use(express.json());
 app.use(middleware.requestLogger);
 
 app.use("/api/users", usersRouter);
 app.use("/api/blogs", middleware.userExtractor, blogsRouter);
 app.use("/api/login", loginRouter);
+
+if (process.env.NODE_ENV === "production") {
+  const frontendDistPath = path.join(__dirname, "../blog-list-frontend/dist");
+  app.use(express.static(frontendDistPath));
+  app.get("/{*splat}", (request, response, next) => {
+    if (request.path.startsWith("/api/")) {
+      return next();
+    }
+
+    response.sendFile(path.join(frontendDistPath, "index.html"));
+  });
+}
 
 if (process.env.NODE_ENV === "test") {
   const testingRouter = require("./controllers/testing");
