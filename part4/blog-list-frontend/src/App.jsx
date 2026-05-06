@@ -146,6 +146,7 @@ const App = () => {
             </ErrorBoundary>
           }
         />
+        <Route path="*" element={<div>404 - Page not found</div>} />
       </Routes>
     </Router>
   );
