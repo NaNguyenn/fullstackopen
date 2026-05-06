@@ -8,6 +8,7 @@ import LoginForm from "./components/LoginForm";
 import Notification from "./components/Notification";
 import CreateBlogForm from "./components/CreateBlogForm";
 import Toggleable from "./components/Toggleable";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
@@ -105,7 +106,7 @@ const App = () => {
         <Route
           path="/"
           element={
-            <>
+            <ErrorBoundary>
               <h2>blogs</h2>
               {user && (
                 <>
@@ -118,27 +119,31 @@ const App = () => {
                   ))}
                 </>
               )}
-            </>
+            </ErrorBoundary>
           }
         />
         <Route
           path="/blogs/:id"
           element={
-            <BlogDetail
-              blogs={sortedBlogs}
-              handleUpdateNotification={setNotification}
-              user={user}
-              handleDeleteBlog={handleDeleteBlog}
-            />
+            <ErrorBoundary>
+              <BlogDetail
+                blogs={sortedBlogs}
+                handleUpdateNotification={setNotification}
+                user={user}
+                handleDeleteBlog={handleDeleteBlog}
+              />
+            </ErrorBoundary>
           }
         />
         <Route
           path="/login"
           element={
-            <LoginForm
-              handleUpdateUser={setUser}
-              handleUpdateNotification={setNotification}
-            />
+            <ErrorBoundary>
+              <LoginForm
+                handleUpdateUser={setUser}
+                handleUpdateNotification={setNotification}
+              />
+            </ErrorBoundary>
           }
         />
       </Routes>
