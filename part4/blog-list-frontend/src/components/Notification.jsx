@@ -1,15 +1,9 @@
 import { useEffect } from "react";
 import "../index.css";
+import { useNotification } from "../store/notification";
 
-const Notification = ({ notification, handleUpdateNotification }) => {
-  useEffect(() => {
-    if (notification) {
-      setTimeout(() => {
-        handleUpdateNotification(null);
-      }, 3000);
-    }
-  }, [handleUpdateNotification, notification]);
-
+const Notification = () => {
+  const notification = useNotification();
   return (
     notification && (
       <div className={`notification ${notification.type}`}>

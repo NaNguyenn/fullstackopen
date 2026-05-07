@@ -9,12 +9,13 @@ import Notification from "./components/Notification";
 import CreateBlogForm from "./components/CreateBlogForm";
 import Toggleable from "./components/Toggleable";
 import ErrorBoundary from "./components/ErrorBoundary";
+import { useNotificationActions } from "./store/notification";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState();
-  const [notification, setNotification] = useState();
   const blogFormRef = useRef();
+  const { showNotification } = useNotificationActions();
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem("loggedUser");
@@ -46,7 +47,7 @@ const App = () => {
   const handleAddBlog = async (blogObject) => {
     try {
       const addedBlog = await blogService.createBlog(blogObject);
-      setNotification({
+      showNotification({
         message: `A new blog titled ${addedBlog.title} by ${addedBlog.author} was added`,
         type: "success",
       });
@@ -57,7 +58,7 @@ const App = () => {
       setBlogs(blogs.concat(addedBlogWithUserInfo));
       blogFormRef.current.toggleVisibility();
     } catch (exception) {
-      setNotification({
+      showNotification({
         message: "Error adding new blog",
         type: "error",
       });
@@ -72,12 +73,12 @@ const App = () => {
       try {
         await blogService.deleteBlog(deletingBlog.id);
         setBlogs(blogs.filter((blog) => blog.id !== deletingBlog.id));
-        setNotification({
+        showNotification({
           message: "Blog deleted successfully",
           type: "success",
         });
       } catch (err) {
-        setNotification({
+        showNotification({
           message: "Error deleting blog",
           type: "error",
         });
@@ -87,10 +88,7 @@ const App = () => {
 
   return (
     <Router>
-      <Notification
-        notification={notification}
-        handleUpdateNotification={setNotification}
-      />
+      <Notification />
       <div style={{ display: "flex", gap: "1rem" }}>
         <Link to="/">blogs</Link>
         {user ? (
@@ -128,7 +126,7 @@ const App = () => {
             <ErrorBoundary>
               <BlogDetail
                 blogs={sortedBlogs}
-                handleUpdateNotification={setNotification}
+                handleUpdateNotification={showNotification}
                 user={user}
                 handleDeleteBlog={handleDeleteBlog}
               />
@@ -141,7 +139,7 @@ const App = () => {
             <ErrorBoundary>
               <LoginForm
                 handleUpdateUser={setUser}
-                handleUpdateNotification={setNotification}
+                handleUpdateNotification={showNotification}
               />
             </ErrorBoundary>
           }
