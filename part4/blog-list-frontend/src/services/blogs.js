@@ -1,42 +1,24 @@
-import axios from "axios";
+import api from "./api";
 const baseUrl = "/api/blogs";
 
-let token = null;
-
-const setToken = (newToken) => {
-  token = `Bearer ${newToken}`;
-};
-
 const getAll = () => {
-  const config = {
-    headers: { Authorization: token },
-  };
-  const request = axios.get(baseUrl, config);
+  const request = api.get(baseUrl);
   return request.then((response) => response.data);
 };
 
 const createBlog = (newObject) => {
-  const config = {
-    headers: { Authorization: token },
-  };
-  const req = axios.post(baseUrl, newObject, config);
+  const req = api.post(baseUrl, newObject);
   return req.then((res) => res.data);
 };
 
 const updateBlog = (id, newObject) => {
-  const config = {
-    headers: { Authorization: token },
-  };
-  const req = axios.put(`${baseUrl}/${id}`, newObject, config);
+  const req = api.put(`${baseUrl}/${id}`, newObject);
   return req.then((res) => res.data);
 };
 
 const deleteBlog = (id) => {
-  const config = {
-    headers: { Authorization: token },
-  };
-  const req = axios.delete(`${baseUrl}/${id}`, config);
+  const req = api.delete(`${baseUrl}/${id}`);
   return req.then((res) => res.data);
 };
 
-export default { getAll, setToken, createBlog, updateBlog, deleteBlog };
+export default { getAll, createBlog, updateBlog, deleteBlog };

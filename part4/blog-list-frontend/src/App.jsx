@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Blog from "./components/Blog";
 import BlogDetail from "./components/BlogDetail";
 import blogService from "./services/blogs";
+import { setAuthToken } from "./services/api";
 import LoginForm from "./components/LoginForm";
 import Notification from "./components/Notification";
 import CreateBlogForm from "./components/CreateBlogForm";
@@ -13,6 +14,7 @@ import { useNotificationActions } from "./store/notification";
 import BlogList from "./components/BlogList";
 import { useUser, useUserActions } from "./store/user";
 import { getUser, removeUser } from "./services/persistentUser";
+import { UserList } from "./components/UserList";
 
 const App = () => {
   const user = useUser();
@@ -24,14 +26,14 @@ const App = () => {
     const user = getUser();
     if (user) {
       setUser(user);
-      blogService.setToken(user.token);
+      setAuthToken(user.token);
     }
   }, [setUser]);
 
   const handleLogout = () => {
     removeUser();
     setUser(null);
-    blogService.setToken(null);
+    setAuthToken(null);
   };
 
   return (
@@ -78,6 +80,14 @@ const App = () => {
           element={
             <ErrorBoundary>
               <LoginForm />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/users"
+          element={
+            <ErrorBoundary>
+              <UserList />
             </ErrorBoundary>
           }
         />

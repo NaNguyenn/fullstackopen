@@ -1,8 +1,8 @@
 import { useState } from "react";
 import loginService from "../services/login";
-import blogService from "../services/blogs";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
+import { setAuthToken } from "../services/api";
 import { useUserActions } from "../store/user";
 import { useNotificationActions } from "../store/notification";
 import { saveUser } from "../services/persistentUser";
@@ -23,7 +23,7 @@ const LoginForm = () => {
         password: password.value,
       });
       saveUser(user);
-      blogService.setToken(user.token);
+      setAuthToken(user.token);
       setUser(user);
       resetUsername();
       resetPassword();
