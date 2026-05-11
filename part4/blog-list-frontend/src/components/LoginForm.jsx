@@ -3,28 +3,33 @@ import loginService from "../services/login";
 import blogService from "../services/blogs";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
+import { useUserActions } from "../store/user";
+import { useNotificationActions } from "../store/notification";
+import { saveUser } from "../services/persistentUser";
 
-const LoginForm = ({ handleUpdateUser, handleUpdateNotification }) => {
+const LoginForm = () => {
   const navigate = useNavigate();
+  const { setUser } = useUserActions();
+  const { showNotification } = useNotificationActions();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
   const handleLogin = async (event) => {
     event.preventDefault();
-
     try {
       const user = await loginService.login({
         username,
         password,
       });
-      window.localStorage.setItem("loggedUser", JSON.stringify(user));
+      saveUser(user);
       blogService.setToken(user.token);
-      handleUpdateUser(user);
+      setUser(user);
       setUsername("");
       setPassword("");
-      handleUpdateNotification({ message: "Logged in", type: "success" });
+      showNotification({ message: "Logged in", type: "success" });
       navigate("/");
     } catch (exception) {
-      handleUpdateNotification({
+      showNotification({
         message: "Wrong username or password",
         type: "error",
       });
@@ -56,11 +61,6 @@ const LoginForm = ({ handleUpdateUser, handleUpdateNotification }) => {
       <button type="submit">login</button>
     </form>
   );
-};
-
-LoginForm.propTypes = {
-  handleUpdateUser: PropTypes.func.isRequired,
-  handleUpdateNotification: PropTypes.func.isRequired,
 };
 
 export default LoginForm;

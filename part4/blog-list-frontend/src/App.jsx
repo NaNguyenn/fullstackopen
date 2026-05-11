@@ -10,80 +10,28 @@ import CreateBlogForm from "./components/CreateBlogForm";
 import Toggleable from "./components/Toggleable";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { useNotificationActions } from "./store/notification";
+import BlogList from "./components/BlogList";
+import { useUser, useUserActions } from "./store/user";
+import { getUser, removeUser } from "./services/persistentUser";
 
 const App = () => {
-  const [blogs, setBlogs] = useState([]);
-  const [user, setUser] = useState();
+  const user = useUser();
+  const { setUser } = useUserActions();
   const blogFormRef = useRef();
   const { showNotification } = useNotificationActions();
 
   useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem("loggedUser");
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON);
+    const user = getUser();
+    if (user) {
       setUser(user);
       blogService.setToken(user.token);
     }
-  }, []);
-
-  useEffect(() => {
-    const fetchBlogs = async () => {
-      const blogs = await blogService.getAll();
-      setBlogs(blogs);
-    };
-    if (user) {
-      fetchBlogs();
-    }
-  }, [user]);
-
-  const sortedBlogs = blogs.sort((a, b) => b.likes - a.likes);
+  }, [setUser]);
 
   const handleLogout = () => {
-    window.localStorage.removeItem("loggedUser");
+    removeUser();
     setUser(null);
     blogService.setToken(null);
-  };
-
-  const handleAddBlog = async (blogObject) => {
-    try {
-      const addedBlog = await blogService.createBlog(blogObject);
-      showNotification({
-        message: `A new blog titled ${addedBlog.title} by ${addedBlog.author} was added`,
-        type: "success",
-      });
-      const addedBlogWithUserInfo = {
-        ...addedBlog,
-        user: { name: user.name, username: user.username },
-      };
-      setBlogs(blogs.concat(addedBlogWithUserInfo));
-      blogFormRef.current.toggleVisibility();
-    } catch (exception) {
-      showNotification({
-        message: "Error adding new blog",
-        type: "error",
-      });
-    }
-  };
-
-  const handleDeleteBlog = async (deletingBlog) => {
-    const confirmation = confirm(
-      `Remove blog ${deletingBlog.title} by ${deletingBlog.author}`,
-    );
-    if (confirmation) {
-      try {
-        await blogService.deleteBlog(deletingBlog.id);
-        setBlogs(blogs.filter((blog) => blog.id !== deletingBlog.id));
-        showNotification({
-          message: "Blog deleted successfully",
-          type: "success",
-        });
-      } catch (err) {
-        showNotification({
-          message: "Error deleting blog",
-          type: "error",
-        });
-      }
-    } else return;
   };
 
   return (
@@ -105,18 +53,7 @@ const App = () => {
           path="/"
           element={
             <ErrorBoundary>
-              <h2>blogs</h2>
-              {user && (
-                <>
-                  <h2>create new</h2>
-                  <Toggleable buttonLabel="new blog" ref={blogFormRef}>
-                    <CreateBlogForm handleAddBlog={handleAddBlog} />
-                  </Toggleable>
-                  {sortedBlogs.map((blog) => (
-                    <Blog key={blog.id} blog={blog} />
-                  ))}
-                </>
-              )}
+              <BlogList />
             </ErrorBoundary>
           }
         />
@@ -124,12 +61,15 @@ const App = () => {
           path="/blogs/:id"
           element={
             <ErrorBoundary>
-              <BlogDetail
-                blogs={sortedBlogs}
-                handleUpdateNotification={showNotification}
-                user={user}
-                handleDeleteBlog={handleDeleteBlog}
-              />
+              <BlogDetail />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/create"
+          element={
+            <ErrorBoundary>
+              <CreateBlogForm />
             </ErrorBoundary>
           }
         />
@@ -137,10 +77,7 @@ const App = () => {
           path="/login"
           element={
             <ErrorBoundary>
-              <LoginForm
-                handleUpdateUser={setUser}
-                handleUpdateNotification={showNotification}
-              />
+              <LoginForm />
             </ErrorBoundary>
           }
         />
