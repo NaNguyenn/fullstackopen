@@ -6,6 +6,7 @@ import Toggleable from "./Toggleable";
 import { useNotificationActions } from "../store/notification";
 import { useUser } from "../store/user";
 import { useUsers, useUsersActions } from "../store/users";
+import { Link, useNavigate } from "react-router-dom";
 
 export const UserList = () => {
   const user = useUser();
@@ -32,7 +33,9 @@ export const UserList = () => {
         <tbody>
           {users.map((user) => (
             <tr key={user.id}>
-              <td>{user.name}</td>
+              <td>
+                <Link to={`/users/${user.id}`}>{user.name}</Link>
+              </td>
               <td>{user.username}</td>
               <td>{user.blogs?.length}</td>
             </tr>

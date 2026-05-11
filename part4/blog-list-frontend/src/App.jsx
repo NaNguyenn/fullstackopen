@@ -15,6 +15,7 @@ import BlogList from "./components/BlogList";
 import { useUser, useUserActions } from "./store/user";
 import { getUser, removeUser } from "./services/persistentUser";
 import { UserList } from "./components/UserList";
+import { UserDetail } from "./components/UserDetail";
 
 const App = () => {
   const user = useUser();
@@ -44,6 +45,7 @@ const App = () => {
         {user ? (
           <>
             <Link to="/create">new blog</Link>
+            <Link to="/users">users</Link>
             <button onClick={handleLogout}>logout</button>
           </>
         ) : (
@@ -88,6 +90,14 @@ const App = () => {
           element={
             <ErrorBoundary>
               <UserList />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/users/:id"
+          element={
+            <ErrorBoundary>
+              <UserDetail />
             </ErrorBoundary>
           }
         />
