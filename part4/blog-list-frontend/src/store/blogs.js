@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import blogService from "../services/blogs";
+import { useUserStore } from "./user";
 
 const useBlogsStore = create((set, get) => ({
   blogs: [],
@@ -9,9 +10,14 @@ const useBlogsStore = create((set, get) => ({
       set(() => ({ blogs }));
     },
     addBlog: async (blog) => {
-      const newBlog = await blogService.createBlog(blog);
+      const user = useUserStore.getState().user;
+      const { user: userId, ...newBlog } = await blogService.createBlog(blog);
+      const newBlogWithUser = {
+        ...newBlog,
+        user: { name: user.name, username: user.username, id: userId },
+      };
       set((state) => ({
-        blogs: [...state.blogs, newBlog],
+        blogs: [...state.blogs, newBlogWithUser],
       }));
     },
     likeBlog: async (id) => {

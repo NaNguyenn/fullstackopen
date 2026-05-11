@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import blogService from "../services/blogs";
 
-const useUserStore = create((set, get) => ({
+export const useUserStore = create((set, get) => ({
   user: null,
   actions: {
     setUser: (user) => set(() => ({ user })),

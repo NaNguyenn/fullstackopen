@@ -9,15 +9,16 @@ import { useUser } from "../store/user";
 
 const BlogList = () => {
   const user = useUser();
+  console.log('user', user);
   const { showNotification } = useNotificationActions();
   const { initializeBlogs } = useBlogActions();
   const sortedBlogs = useBlogs();
 
   useEffect(() => {
-    if (user) {
+    if (user && !sortedBlogs?.length) {
       initializeBlogs();
     }
-  }, [initializeBlogs, user]);
+  }, [initializeBlogs, sortedBlogs?.length, user]);
 
   return (
     <>
