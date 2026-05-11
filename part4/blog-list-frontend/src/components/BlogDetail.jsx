@@ -1,13 +1,8 @@
-import { useState, useEffect } from "react";
-import blogService from "../services/blogs";
-import { useParams } from "react-router-dom";
-import { useNotificationActions } from "../store/notification";
 import { useBlogDetail } from "../hooks/useBlogDetail";
 import { useUser } from "../store/user";
 
 const BlogDetail = () => {
   const user = useUser();
-  const id = useParams().id;
   const { blog, handleDeleteBlog, handleLikeBlog } = useBlogDetail();
 
   return (
