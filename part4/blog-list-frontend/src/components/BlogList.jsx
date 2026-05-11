@@ -2,15 +2,11 @@ import { useState, useEffect, useRef } from "react";
 
 import Blog from "./Blog";
 import CreateBlogForm from "./CreateBlogForm";
-import Toggleable from "./Toggleable";
-import { useNotificationActions } from "../store/notification";
 import { useBlogActions, useBlogs } from "../store/blogs";
 import { useUser } from "../store/user";
 
 const BlogList = () => {
   const user = useUser();
-  console.log('user', user);
-  const { showNotification } = useNotificationActions();
   const { initializeBlogs } = useBlogActions();
   const sortedBlogs = useBlogs();
 
