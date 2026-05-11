@@ -2,20 +2,21 @@ import { useState } from "react";
 import { useNotificationActions } from "../store/notification";
 import { useBlogActions } from "../store/blogs";
 import { useNavigate } from "react-router-dom";
+import { useField } from "../hooks/useField";
 
 const CreateBlogForm = () => {
   const navigate = useNavigate();
   const { showNotification } = useNotificationActions();
   const { addBlog } = useBlogActions();
-  const [title, setTitle] = useState("");
-  const [author, setAuthor] = useState("");
-  const [url, setUrl] = useState("");
+  const { reset: resetTitle, ...title } = useField("text");
+  const { reset: resetAuthor, ...author } = useField("text");
+  const { reset: resetUrl, ...url } = useField("url");
 
   const handleAddBlog = async (blogObject) => {
     try {
       await addBlog(blogObject);
       showNotification({
-        message: `A new blog titled ${blogObject.title} by ${blogObject.author} was added`,
+        message: `A new blog titled ${blogObject.title.value} by ${blogObject.author.value} was added`,
         type: "success",
       });
     } catch (exception) {
@@ -29,13 +30,13 @@ const CreateBlogForm = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     handleAddBlog({
-      title,
-      author,
-      url,
+      title: title.value,
+      author: author.value,
+      url: url.value,
     });
-    setTitle("");
-    setAuthor("");
-    setUrl("");
+    resetTitle();
+    resetAuthor();
+    resetUrl();
     navigate("/");
   };
 
@@ -45,33 +46,15 @@ const CreateBlogForm = () => {
       <form onSubmit={handleSubmit}>
         <div>
           title
-          <input
-            type="text"
-            value={title}
-            name="Title"
-            onChange={({ target }) => setTitle(target.value)}
-            data-testid="title-input"
-          />
+          <input {...title} name="Title" data-testid="title-input" />
         </div>
         <div>
           author
-          <input
-            type="author"
-            value={author}
-            name="author"
-            onChange={({ target }) => setAuthor(target.value)}
-            data-testid="author-input"
-          />
+          <input {...author} name="author" data-testid="author-input" />
         </div>
         <div>
           url
-          <input
-            type="url"
-            value={url}
-            name="url"
-            onChange={({ target }) => setUrl(target.value)}
-            data-testid="url-input"
-          />
+          <input {...url} name="url" data-testid="url-input" />
         </div>
         <button type="submit">create</button>
       </form>

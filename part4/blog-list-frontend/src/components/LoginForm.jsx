@@ -6,26 +6,27 @@ import { useNavigate } from "react-router-dom";
 import { useUserActions } from "../store/user";
 import { useNotificationActions } from "../store/notification";
 import { saveUser } from "../services/persistentUser";
+import { useField } from "../hooks/useField";
 
 const LoginForm = () => {
   const navigate = useNavigate();
   const { setUser } = useUserActions();
   const { showNotification } = useNotificationActions();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const { reset: resetUsername, ...username } = useField("text");
+  const { reset: resetPassword, ...password } = useField("password");
 
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
       const user = await loginService.login({
-        username,
-        password,
+        username: username.value,
+        password: password.value,
       });
       saveUser(user);
       blogService.setToken(user.token);
       setUser(user);
-      setUsername("");
-      setPassword("");
+      resetUsername();
+      resetPassword();
       showNotification({ message: "Logged in", type: "success" });
       navigate("/");
     } catch (exception) {
@@ -40,23 +41,11 @@ const LoginForm = () => {
     <form onSubmit={handleLogin}>
       <div>
         username
-        <input
-          type="text"
-          value={username}
-          name="Username"
-          onChange={({ target }) => setUsername(target.value)}
-          data-testid="username"
-        />
+        <input {...username} name="Username" data-testid="username" />
       </div>
       <div>
         password
-        <input
-          type="password"
-          value={password}
-          name="Password"
-          onChange={({ target }) => setPassword(target.value)}
-          data-testid="password"
-        />
+        <input {...password} name="Password" data-testid="password" />
       </div>
       <button type="submit">login</button>
     </form>
