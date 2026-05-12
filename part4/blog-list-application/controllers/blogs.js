@@ -1,9 +1,10 @@
 const blogsRouter = require("express").Router();
 const Blog = require("../models/blog");
 const User = require("../models/user");
+const middleware = require("../utils/middleware");
 
 // get all blogs
-blogsRouter.get("/", async (request, response) => {
+blogsRouter.get("/", middleware.userExtractor, async (request, response) => {
   const blogs = await Blog.find({}).populate("user", {
     username: 1,
     name: 1,
@@ -13,58 +14,66 @@ blogsRouter.get("/", async (request, response) => {
 });
 
 // add new blog
-blogsRouter.post("/", async (request, response, next) => {
-  const body = request.body;
+blogsRouter.post(
+  "/",
+  middleware.userExtractor,
+  async (request, response, next) => {
+    const body = request.body;
 
-  const user = await User.findById(request.user.id);
+    const user = await User.findById(request.user.id);
 
-  const blog = new Blog({
-    title: body.title,
-    author: body.author,
-    url: body.url,
-    likes: body.likes || 0,
-    user: user._id,
-  });
+    const blog = new Blog({
+      title: body.title,
+      author: body.author,
+      url: body.url,
+      likes: body.likes || 0,
+      user: user._id,
+    });
 
-  try {
-    const savedBlog = await blog.save();
-    user.blogs = user.blogs.concat(savedBlog._id);
-    await user.save();
+    try {
+      const savedBlog = await blog.save();
+      user.blogs = user.blogs.concat(savedBlog._id);
+      await user.save();
 
-    response.status(201).json(savedBlog);
-  } catch (error) {
-    next(error);
-  }
-});
+      response.status(201).json(savedBlog);
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 // delete a blog
-blogsRouter.delete("/:id", async (request, response, next) => {
-  const id = request.params.id;
+blogsRouter.delete(
+  "/:id",
+  middleware.userExtractor,
+  async (request, response, next) => {
+    const id = request.params.id;
 
-  try {
-    const user = await User.findById(request.user.id);
-    const blog = await Blog.findById(id);
-    if (!blog) {
-      return response.status(204).end();
+    try {
+      const user = await User.findById(request.user.id);
+      const blog = await Blog.findById(id);
+      if (!blog) {
+        return response.status(204).end();
+      }
+
+      if (blog.user.toString() !== user._id.toString()) {
+        return response
+          .status(403)
+          .json({ error: "You are not authorized to delete this blog" });
+      }
+      await Blog.findByIdAndDelete(id);
+
+      user.blogs = user.blogs.filter(
+        (blogId) => blogId.toString() !== id.toString(),
+      );
+      await user.save();
+
+      response.status(204).end();
+    } catch (error) {
+      next(error);
     }
-
-    if (blog.user.toString() !== user._id.toString()) {
-      return response
-        .status(403)
-        .json({ error: "You are not authorized to delete this blog" });
-    }
-    await Blog.findByIdAndDelete(id);
-
-    user.blogs = user.blogs.filter(
-      (blogId) => blogId.toString() !== id.toString()
-    );
-    await user.save();
-
-    response.status(204).end();
-  } catch (error) {
-    next(error);
-  }
-});
+  },
+);
 
 // update a blog
 blogsRouter.put("/:id", async (request, response, next) => {
@@ -89,13 +98,41 @@ blogsRouter.put("/:id", async (request, response, next) => {
       request.params.id,
       updatedBlogData,
       {
-        new: true,
+        returnDocument: "after",
         runValidators: true,
         context: "query",
-      }
+      },
     );
 
     response.json(updatedBlog);
+  } catch (error) {
+    next(error);
+  }
+});
+
+blogsRouter.post("/:id/comments", async (request, response, next) => {
+  const { comment } = request.body;
+
+  if (!comment) {
+    return response.status(400).json({ error: "comment is required" });
+  }
+
+  try {
+    const updatedBlog = await Blog.findByIdAndUpdate(
+      request.params.id,
+      { $push: { comments: comment } },
+      {
+        returnDocument: "after",
+        runValidators: true,
+        context: "query",
+      },
+    );
+
+    if (!updatedBlog) {
+      return response.status(404).json({ error: "Blog not found" });
+    }
+
+    response.status(201).json(updatedBlog);
   } catch (error) {
     next(error);
   }

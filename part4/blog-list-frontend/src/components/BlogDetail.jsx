@@ -19,6 +19,14 @@ const BlogDetail = () => {
           <button onClick={handleDeleteBlog}>remove</button>
         )}
       </div>
+      <div>
+        <p>comments</p>
+        <ul>
+          {blog.comments.map((comment, index) => (
+            <li key={index}>{comment}</li>
+          ))}
+        </ul>
+      </div>
     </>
   );
 };

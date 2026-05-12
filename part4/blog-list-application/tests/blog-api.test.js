@@ -29,7 +29,7 @@ beforeEach(async () => {
   const savedUser = await user.save();
 
   const blogObjects = helper.initialBlogs.map(
-    (blog) => new Blog({ ...blog, user: savedUser._id.toString() })
+    (blog) => new Blog({ ...blog, user: savedUser._id.toString() }),
   );
 
   const promiseArray = blogObjects.map((blog) => blog.save());
@@ -150,7 +150,7 @@ test("blog without title or url is bad request", async () => {
   assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
 });
 
-test.only("a blog can be deleted", async () => {
+test("a blog can be deleted", async () => {
   const blogsAtStart = await helper.blogsInDb();
   const blogToDelete = blogsAtStart[0];
 
@@ -168,7 +168,7 @@ test.only("a blog can be deleted", async () => {
   assert.ok(!titles.includes(blogToDelete.title));
 });
 
-test.only("deleting a blog with invalid id returns 400", async () => {
+test("deleting a blog with invalid id returns 400", async () => {
   const invalidId = "invalidid";
 
   const token = await loginUser();
@@ -182,7 +182,7 @@ test.only("deleting a blog with invalid id returns 400", async () => {
   assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
 });
 
-test.only("deleting a blog with nonexistent id returns 204", async () => {
+test("deleting a blog with nonexistent id returns 204", async () => {
   const token = await loginUser();
   const blogsAtStart = await helper.blogsInDb();
   const blogToDelete = blogsAtStart[0];
@@ -202,6 +202,25 @@ test.only("deleting a blog with nonexistent id returns 204", async () => {
   assert.strictEqual(blogsAtEnd.length, blogsAtStart.length - 1);
 });
 
+test("an anonymous comment can be added to a blog", async () => {
+  const blogsAtStart = await helper.blogsInDb();
+  const blogToComment = blogsAtStart[0];
+  const newComment = { comment: "useful post" };
+
+  const response = await api
+    .post(`/api/blogs/${blogToComment.id}/comments`)
+    .send(newComment)
+    .expect(201)
+    .expect("Content-Type", /application\/json/);
+
+  assert(response.body.comments.includes(newComment.comment));
+
+  const blogsAtEnd = await helper.blogsInDb();
+  const updatedBlog = blogsAtEnd.find((blog) => blog.id === blogToComment.id);
+
+  assert(updatedBlog.comments.includes(newComment.comment));
+});
+
 test("blog can be updated", async () => {
   const blogsAtStart = await helper.blogsInDb();
   const blogToUpdate = blogsAtStart[0];
@@ -217,7 +236,7 @@ test("blog can be updated", async () => {
 
   const blogsAtEnd = await helper.blogsInDb();
   const updatedBlogInDb = blogsAtEnd.find(
-    (blog) => blog.id === blogToUpdate.id
+    (blog) => blog.id === blogToUpdate.id,
   );
 
   assert.deepStrictEqual(updatedBlogInDb.title, updatedBlog.title);
