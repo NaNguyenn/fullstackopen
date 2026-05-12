@@ -8,7 +8,7 @@ export const useBlogDetail = () => {
   const id = useParams().id;
   const sortedBlogs = useBlogs();
   const blog = sortedBlogs.find((b) => b.id === id);
-  const { deleteBlog, likeBlog } = useBlogActions();
+  const { deleteBlog, likeBlog, addComment } = useBlogActions();
   const { showNotification } = useNotificationActions();
 
   const handleDeleteBlog = async () => {
@@ -41,5 +41,16 @@ export const useBlogDetail = () => {
     }
   };
 
-  return { blog, handleDeleteBlog, handleLikeBlog };
+  const handleAddComment = async (comment) => {
+    try {
+      await addComment(blog.id, comment);
+    } catch (err) {
+      showNotification({
+        message: "Error adding comment",
+        type: "error",
+      });
+    }
+  };
+
+  return { blog, handleDeleteBlog, handleLikeBlog, handleAddComment };
 };

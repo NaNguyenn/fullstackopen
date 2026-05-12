@@ -1,9 +1,11 @@
 import { useBlogDetail } from "../hooks/useBlogDetail";
+import { useField } from "../hooks/useField";
 import { useUser } from "../store/user";
 
 const BlogDetail = () => {
   const user = useUser();
-  const { blog, handleDeleteBlog, handleLikeBlog } = useBlogDetail();
+  const { blog, handleDeleteBlog, handleLikeBlog, handleAddComment } = useBlogDetail();
+  const { reset: resetComment, ...comment } = useField("text");
 
   return (
     <>
@@ -21,6 +23,16 @@ const BlogDetail = () => {
       </div>
       <div>
         <p>comments</p>
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            handleAddComment(comment.value);
+            resetComment();
+          }}
+        >
+          <input {...comment} name="Comment" />
+          <button type="submit">add comment</button>
+        </form>
         <ul>
           {blog.comments.map((comment, index) => (
             <li key={index}>{comment}</li>

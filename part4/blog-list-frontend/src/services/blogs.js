@@ -21,4 +21,9 @@ const deleteBlog = (id) => {
   return req.then((res) => res.data);
 };
 
-export default { getAll, createBlog, updateBlog, deleteBlog };
+const addComment = (id, comment) => {
+  const req = api.post(`${baseUrl}/${id}/comments`, { comment });
+  return req.then((res) => res.data);
+};
+
+export default { getAll, createBlog, updateBlog, deleteBlog, addComment };
