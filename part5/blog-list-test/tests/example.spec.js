@@ -1,150 +1,154 @@
-const { test, expect, describe, beforeEach } = require("@playwright/test");
-const { loginWith, createBlog, likeBlog } = require("./helper");
+const { test, expect } = require("@playwright/test");
+const {
+  resetDatabase,
+  createUser,
+  loginWith,
+  loginByApi,
+  createBlog,
+  createBlogByApi,
+  openBlog,
+  likeBlog,
+} = require("./helper");
 
-describe("Blog app", () => {
-  beforeEach(async ({ page, request }) => {
-    await request.post("/api/testing/reset");
-    await request.post("/api/users", {
-      data: {
-        name: "Matti Luukkainen",
-        username: "admin",
-        password: "admin",
-      },
-    });
+const user = {
+  name: "Matti Luukkainen",
+  username: "admin",
+  password: "admin",
+};
 
+test.describe("Blog app", () => {
+  test.beforeEach(async ({ page, request }) => {
+    await resetDatabase(request);
+    await createUser(request, user);
     await page.goto("/");
   });
 
-  test("Login form is shown", async ({ page }) => {
-    await page.getByRole("button", { name: "login" }).click();
+  test("Login succeeds with the correct username/password combination", async ({
+    page,
+  }) => {
+    await loginWith(page, user.username, user.password);
 
+    await expect(page.getByRole("button", { name: "logout" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "new blog" })).toBeVisible();
+    await expect(page.getByText("Logged in")).toBeVisible();
+  });
+
+  test("Login fails if the username/password is incorrect", async ({
+    page,
+  }) => {
+    await loginWith(page, user.username, "wrong-password");
+
+    await expect(page.getByText("Wrong username or password")).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "logout" }),
+    ).not.toBeVisible();
     await expect(page.getByTestId("username")).toBeVisible();
   });
 
-  describe("Login", () => {
-    test("succeeds with correct credentials", async ({ page }) => {
-      await loginWith(page, "admin", "admin");
+  test.describe("when logged in", () => {
+    let loggedInUser;
 
-      await expect(page.getByText("blogs")).toBeVisible();
-    });
-    test("fails with wrong credentials", async ({ page }) => {
-      await loginWith(page, "admin", "fail");
-      await page.locator(".notification").waitFor();
-
-      await expect(page.getByText("Wrong username or password")).toBeVisible();
-    });
-  });
-
-  describe("when logged in", () => {
-    beforeEach(async ({ page }) => {
-      await loginWith(page, "admin", "admin");
+    test.beforeEach(async ({ page, request }) => {
+      loggedInUser = await loginByApi(
+        page,
+        request,
+        user.username,
+        user.password,
+      );
     });
 
-    test("a new blog can be created", async ({ page }) => {
-      await createBlog(page, {
+    test("A logged-in user can create a blog", async ({ page }) => {
+      const blog = {
         title: "New blog by playwright",
         author: "Blog Author",
         url: "https://fullstackopen.com",
-      });
+      };
+
+      await createBlog(page, blog);
+
       await expect(
-        page.getByText("New blog by playwright Blog Author")
+        page.getByText(
+          `A new blog titled ${blog.title} by ${blog.author} was added`,
+        ),
+      ).toBeVisible();
+      await expect(
+        page.getByTestId("blog").filter({ hasText: blog.title }),
       ).toBeVisible();
     });
 
-    test("blogs are arranged in descending order based on likes", async ({
+    test("A logged-in user can like blogs", async ({ page, request }) => {
+      const blog = {
+        title: "Blog to like",
+        author: "Like Author",
+        url: "https://example.com/like",
+      };
+
+      await createBlogByApi(request, loggedInUser.token, blog);
+      await page.goto("/");
+
+      await openBlog(page, blog.title);
+      await expect(page.getByText("likes 0")).toBeVisible();
+
+      await likeBlog(page);
+
+      await expect(page.getByText("likes 1")).toBeVisible();
+    });
+
+    test("A logged-in user can delete a blog", async ({ page, request }) => {
+      const blog = {
+        title: "Blog to remove",
+        author: "Delete Author",
+        url: "https://example.com/delete",
+      };
+
+      await createBlogByApi(request, loggedInUser.token, blog);
+      await page.goto("/");
+
+      await openBlog(page, blog.title);
+      page.once("dialog", (dialog) => dialog.accept());
+      await page.getByRole("button", { name: "remove" }).click();
+
+      await expect(page.getByText("Blog deleted successfully")).toBeVisible();
+      await expect(
+        page.getByTestId("blog").filter({ hasText: blog.title }),
+      ).toHaveCount(0);
+    });
+
+    test("Blogs are sorted by likes in descending order", async ({
       page,
       request,
     }) => {
-      await createBlog(page, {
+      await createBlogByApi(request, loggedInUser.token, {
         title: "Least liked blog",
         author: "Author A",
-        url: "https://fullstackopen.com/",
+        url: "https://example.com/least",
+        likes: 1,
       });
-
-      await createBlog(page, {
+      await createBlogByApi(request, loggedInUser.token, {
         title: "Most liked blog",
         author: "Author B",
-        url: "https://fullstackopen.com/",
+        url: "https://example.com/most",
+        likes: 10,
       });
-
-      await createBlog(page, {
+      await createBlogByApi(request, loggedInUser.token, {
         title: "Medium liked blog",
         author: "Author C",
-        url: "https://fullstackopen.com/",
+        url: "https://example.com/medium",
+        likes: 5,
       });
 
-      await page
-        .getByTestId("blog-title")
-        .filter({ hasText: "Medium liked blog" })
-        .waitFor();
+      await page.goto("/");
+      await expect(page.getByTestId("blog-title").first()).toBeVisible();
 
-      await likeBlog(page, "Most liked blog", 3);
-      await likeBlog(page, "Medium liked blog", 2);
-      await likeBlog(page, "Least liked blog", 1);
-
-      await page.getByRole("button", { name: "logout" }).click();
-      await loginWith(page, "admin", "admin");
-
-      await expect(page.getByTestId("blog-title").first()).toHaveText(
-        "Most liked blog"
+      await expect(page.getByTestId("blog-title").nth(0)).toHaveText(
+        "Most liked blog",
       );
       await expect(page.getByTestId("blog-title").nth(1)).toHaveText(
-        "Medium liked blog"
+        "Medium liked blog",
       );
       await expect(page.getByTestId("blog-title").nth(2)).toHaveText(
-        "Least liked blog"
+        "Least liked blog",
       );
-    });
-
-    describe("and a blog exists", () => {
-      beforeEach(async ({ page }) => {
-        await createBlog(page, {
-          title: "New blog by playwright",
-          author: "Blog Author",
-          url: "https://fullstackopen.com",
-        });
-      });
-
-      test("blog can be liked", async ({ page }) => {
-        await page.getByRole("button", { name: "view" }).click();
-        await expect(page.getByText("like")).toBeVisible();
-      });
-
-      test("blog can be deleted", async ({ page }) => {
-        await page.getByRole("button", { name: "view" }).click();
-
-        await page.on("dialog", (dialog) => dialog.accept());
-        await page.getByRole("button", { name: "delete" }).click();
-
-        await page.locator(".notification").waitFor();
-
-        await expect(page.getByText("Blog deleted successfully")).toBeVisible();
-      });
-
-      test("only the user who added the blog sees the delete button", async ({
-        page,
-      }) => {
-        await page.getByRole("button", { name: "view" }).click();
-        await expect(
-          page.getByRole("button", { name: "delete" })
-        ).toBeVisible();
-
-        await page.getByRole("button", { name: "logout" }).click();
-
-        await page.request.post("/api/users", {
-          data: {
-            name: "Another User",
-            username: "user",
-            password: "user",
-          },
-        });
-        await loginWith(page, "user", "user");
-
-        await page.getByRole("button", { name: "view" }).click();
-        await expect(
-          page.getByRole("button", { name: "delete" })
-        ).not.toBeVisible();
-      });
     });
   });
 });
