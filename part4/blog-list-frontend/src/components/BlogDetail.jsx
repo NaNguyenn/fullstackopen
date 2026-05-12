@@ -1,3 +1,4 @@
+import { Box, Button, Typography } from "@mui/material";
 import { useBlogDetail } from "../hooks/useBlogDetail";
 import { useField } from "../hooks/useField";
 import { useUser } from "../store/user";
@@ -10,17 +11,27 @@ const BlogDetail = () => {
 
   return (
     <>
-      <div>{blog.title}</div>
+      <Typography variant="h4">{blog.title}</Typography>
       <div>
         <a href={blog.url}>{blog.url}</a>
-        <div>
-          likes {blog.likes}
-          {!!user && <button onClick={handleLikeBlog}>like</button>}
-        </div>
         <div>Added by {blog.user.name}</div>
-        {user?.username === blog.user.username && (
-          <button onClick={handleDeleteBlog}>remove</button>
-        )}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {blog.likes} likes
+          {!!user && (
+            <Button onClick={handleLikeBlog} variant="contained">
+              like
+            </Button>
+          )}
+          {user?.username === blog.user.username && (
+            <Button
+              onClick={handleDeleteBlog}
+              variant="contained"
+              color="error"
+            >
+              remove
+            </Button>
+          )}
+        </Box>
       </div>
       <div>
         <p>comments</p>
