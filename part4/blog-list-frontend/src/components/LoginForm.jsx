@@ -7,6 +7,7 @@ import { useUserActions } from "../store/user";
 import { useNotificationActions } from "../store/notification";
 import { saveUser } from "../services/persistentUser";
 import { useField } from "../hooks/useField";
+import { Box, Button, TextField } from "@mui/material";
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -39,15 +40,33 @@ const LoginForm = () => {
 
   return (
     <form onSubmit={handleLogin}>
-      <div>
-        username
-        <input {...username} name="Username" data-testid="username" />
-      </div>
-      <div>
-        password
-        <input {...password} name="Password" data-testid="password" />
-      </div>
-      <button type="submit">login</button>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+          gap: "1rem",
+        }}
+      >
+        <TextField
+          {...username}
+          name="Username"
+          data-testid="username"
+          label="Username"
+          variant="standard"
+        />
+        <TextField
+          {...password}
+          name="Password"
+          type="password"
+          data-testid="password"
+          label="Password"
+          variant="standard"
+        />
+        <Button type="submit" variant="contained">
+          login
+        </Button>
+      </Box>
     </form>
   );
 };

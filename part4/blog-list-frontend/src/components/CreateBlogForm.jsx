@@ -3,6 +3,7 @@ import { useNotificationActions } from "../store/notification";
 import { useBlogActions } from "../store/blogs";
 import { useNavigate } from "react-router-dom";
 import { useField } from "../hooks/useField";
+import { Box, Button, TextField } from "@mui/material";
 
 const CreateBlogForm = () => {
   const navigate = useNavigate();
@@ -44,19 +45,39 @@ const CreateBlogForm = () => {
     <>
       <h2>create new</h2>
       <form onSubmit={handleSubmit}>
-        <div>
-          title
-          <input {...title} name="Title" data-testid="title-input" />
-        </div>
-        <div>
-          author
-          <input {...author} name="author" data-testid="author-input" />
-        </div>
-        <div>
-          url
-          <input {...url} name="url" data-testid="url-input" />
-        </div>
-        <button type="submit">create</button>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            gap: "1rem",
+          }}
+        >
+          <TextField
+            {...title}
+            name="Title"
+            data-testid="title-input"
+            label="Title"
+            variant="outlined"
+          />
+          <TextField
+            {...author}
+            name="Author"
+            data-testid="author-input"
+            label="Author"
+            variant="outlined"
+          />
+          <TextField
+            {...url}
+            name="Url"
+            data-testid="url-input"
+            label="Url"
+            variant="outlined"
+          />
+          <Button type="submit" variant="contained">
+            create
+          </Button>
+        </Box>
       </form>
     </>
   );
