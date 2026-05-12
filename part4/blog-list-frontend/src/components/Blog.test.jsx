@@ -1,88 +1,44 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import Blog from "./Blog";
 
-test("<Blog /> renders title and author but not URL or likes by default", () => {
-  const blog = {
-    title: "Component testing is done with react-testing-library",
-    author: "Edsger W. Dijkstra",
-    url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
-    likes: 1,
-    user: {
-      username: "first",
-      name: "Matti Luukkainen",
-      id: "678a2458c3c9bd4f50bdefd8",
-    },
-    id: "678a2e379c3089cad37a2941",
-  };
+const blog = {
+  title: "Component testing is done with react-testing-library",
+  author: "Edsger W. Dijkstra",
+  url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
+  likes: 1,
+  user: {
+    username: "first",
+    name: "Matti Luukkainen",
+    id: "678a2458c3c9bd4f50bdefd8",
+  },
+  id: "678a2e379c3089cad37a2941",
+};
 
-  render(<Blog blog={blog} />);
+const renderBlog = () =>
+  render(
+    <MemoryRouter initialEntries={["/"]}>
+      <Routes>
+        <Route path="/" element={<Blog blog={blog} />} />
+        <Route path="/blogs/:id" element={<div>blog detail page</div>} />
+      </Routes>
+    </MemoryRouter>,
+  );
 
-  const titleElement = screen.getByText(blog.title, { exact: false });
-  const authorElement = screen.getByText(blog.author, { exact: false });
-  expect(titleElement).toBeInTheDocument();
-  expect(authorElement).toBeInTheDocument();
+test("<Blog /> renders the blog title, author, and show button", () => {
+  renderBlog();
 
-  const urlElement = screen.queryByText(blog.url);
-  const likesElement = screen.queryByText(`likes ${blog.likes}`);
-  expect(urlElement).not.toBeInTheDocument();
-  expect(likesElement).not.toBeInTheDocument();
+  expect(screen.getByTestId("blog-title")).toHaveTextContent(blog.title);
+  expect(screen.getByText(blog.author, { exact: false })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "show" })).toBeInTheDocument();
 });
 
-test("<Blog /> renders url and likes after clicking the 'view' button", async () => {
-  const blog = {
-    title: "Component testing is done with react-testing-library",
-    author: "Edsger W. Dijkstra",
-    url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
-    likes: 1,
-    user: {
-      username: "first",
-      name: "Matti Luukkainen",
-      id: "678a2458c3c9bd4f50bdefd8",
-    },
-    id: "678a2e379c3089cad37a2941",
-  };
-
-  render(<Blog blog={blog} />);
+test("<Blog /> navigates to the blog detail page when clicking 'show'", async () => {
+  renderBlog();
 
   const user = userEvent.setup();
-  const viewButton = screen.getByText("view");
+  await user.click(screen.getByRole("button", { name: "show" }));
 
-  await user.click(viewButton);
-
-  const urlElement = screen.getByText(blog.url);
-  const likesElement = screen.getByText(`${blog.likes}`);
-  expect(urlElement).toBeInTheDocument();
-  expect(likesElement).toBeInTheDocument();
-});
-
-test("<Blog /> clicking the like button twice calls the event handler twice", async () => {
-  const blog = {
-    title: "Component testing is done with react-testing-library",
-    author: "Edsger W. Dijkstra",
-    url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
-    likes: 1,
-    user: {
-      username: "first",
-      name: "Matti Luukkainen",
-      id: "678a2458c3c9bd4f50bdefd8",
-    },
-    id: "678a2e379c3089cad37a2941",
-  };
-
-  const mockHandleLike = vi.fn();
-
-  render(<Blog blog={blog} handleUpdateNotification={mockHandleLike} />);
-
-  const user = userEvent.setup();
-  const viewButton = screen.getByText("view");
-
-  await user.click(viewButton);
-
-  const likeButton = screen.getByText("like");
-
-  await user.click(likeButton);
-  await user.click(likeButton);
-
-  expect(mockHandleLike).toHaveBeenCalledTimes(2);
+  expect(screen.getByText("blog detail page")).toBeInTheDocument();
 });

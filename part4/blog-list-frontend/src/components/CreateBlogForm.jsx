@@ -16,7 +16,7 @@ const CreateBlogForm = () => {
     try {
       await addBlog(blogObject);
       showNotification({
-        message: `A new blog titled ${blogObject.title.value} by ${blogObject.author.value} was added`,
+        message: `A new blog titled ${blogObject.title} by ${blogObject.author} was added`,
         type: "success",
       });
     } catch (exception) {
