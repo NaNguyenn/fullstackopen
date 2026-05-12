@@ -4,7 +4,7 @@ const User = require("../models/user");
 const middleware = require("../utils/middleware");
 
 // get all blogs
-blogsRouter.get("/", middleware.userExtractor, async (request, response) => {
+blogsRouter.get("/", async (request, response) => {
   const blogs = await Blog.find({}).populate("user", {
     username: 1,
     name: 1,
@@ -76,39 +76,43 @@ blogsRouter.delete(
 );
 
 // update a blog
-blogsRouter.put("/:id", async (request, response, next) => {
-  const body = request.body;
+blogsRouter.put(
+  "/:id",
+  middleware.userExtractor,
+  async (request, response, next) => {
+    const body = request.body;
 
-  try {
-    const blog = await Blog.findById(request.params.id);
+    try {
+      const blog = await Blog.findById(request.params.id);
 
-    if (!blog) {
-      return response.status(404).json({ error: "Blog not found" });
+      if (!blog) {
+        return response.status(404).json({ error: "Blog not found" });
+      }
+
+      const updatedBlogData = {
+        title: body.title,
+        author: body.author,
+        url: body.url,
+        likes: body.likes,
+        user: blog.user,
+      };
+
+      const updatedBlog = await Blog.findByIdAndUpdate(
+        request.params.id,
+        updatedBlogData,
+        {
+          returnDocument: "after",
+          runValidators: true,
+          context: "query",
+        },
+      );
+
+      response.json(updatedBlog);
+    } catch (error) {
+      next(error);
     }
-
-    const updatedBlogData = {
-      title: body.title,
-      author: body.author,
-      url: body.url,
-      likes: body.likes,
-      user: blog.user,
-    };
-
-    const updatedBlog = await Blog.findByIdAndUpdate(
-      request.params.id,
-      updatedBlogData,
-      {
-        returnDocument: "after",
-        runValidators: true,
-        context: "query",
-      },
-    );
-
-    response.json(updatedBlog);
-  } catch (error) {
-    next(error);
-  }
-});
+  },
+);
 
 blogsRouter.post("/:id/comments", async (request, response, next) => {
   const { comment } = request.body;

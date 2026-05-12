@@ -37,31 +37,20 @@ beforeEach(async () => {
 });
 
 test("blogs returned as json", async () => {
-  const token = await loginUser();
-
   await api
     .get("/api/blogs")
-    .set("Authorization", `Bearer ${token}`)
     .expect(200)
     .expect("Content-Type", /application\/json/);
 });
 
 test("all blogs returned", async () => {
-  const token = await loginUser();
-
-  const response = await api
-    .get("/api/blogs")
-    .set("Authorization", `Bearer ${token}`);
+  const response = await api.get("/api/blogs");
 
   assert.strictEqual(response.body.length, helper.initialBlogs.length);
 });
 
 test("all blogs returned have unique id", async () => {
-  const token = await loginUser();
-
-  const response = await api
-    .get("/api/blogs")
-    .set("Authorization", `Bearer ${token}`);
+  const response = await api.get("/api/blogs");
   const uniqueIds = new Set(response.body.map((blog) => blog.id));
   assert.strictEqual(uniqueIds.size, response.body.length);
 });

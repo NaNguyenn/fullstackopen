@@ -4,7 +4,8 @@ import { useUser } from "../store/user";
 
 const BlogDetail = () => {
   const user = useUser();
-  const { blog, handleDeleteBlog, handleLikeBlog, handleAddComment } = useBlogDetail();
+  const { blog, handleDeleteBlog, handleLikeBlog, handleAddComment } =
+    useBlogDetail();
   const { reset: resetComment, ...comment } = useField("text");
 
   return (
@@ -14,7 +15,7 @@ const BlogDetail = () => {
         <a href={blog.url}>{blog.url}</a>
         <div>
           likes {blog.likes}
-          <button onClick={handleLikeBlog}>like</button>
+          {!!user && <button onClick={handleLikeBlog}>like</button>}
         </div>
         <div>Added by {blog.user.name}</div>
         {user?.username === blog.user.username && (
