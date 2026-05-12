@@ -3,7 +3,6 @@ import { useState, useEffect, useRef } from "react";
 import Blog from "./Blog";
 import CreateBlogForm from "./CreateBlogForm";
 import Toggleable from "./Toggleable";
-import { useNotificationActions } from "../store/notification";
 import { useUser } from "../store/user";
 import { useUsers, useUsersActions } from "../store/users";
 import { Link, useNavigate } from "react-router-dom";

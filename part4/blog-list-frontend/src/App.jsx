@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Container } from "@mui/material";
+import { AppBar, Button, Container, Toolbar } from "@mui/material";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Blog from "./components/Blog";
 import BlogDetail from "./components/BlogDetail";
@@ -10,7 +10,6 @@ import Notification from "./components/Notification";
 import CreateBlogForm from "./components/CreateBlogForm";
 import Toggleable from "./components/Toggleable";
 import ErrorBoundary from "./components/ErrorBoundary";
-import { useNotificationActions } from "./store/notification";
 import BlogList from "./components/BlogList";
 import { useUser, useUserActions } from "./store/user";
 import { getUser, removeUser } from "./services/persistentUser";
@@ -21,7 +20,6 @@ const App = () => {
   const user = useUser();
   const { setUser } = useUserActions();
   const blogFormRef = useRef();
-  const { showNotification } = useNotificationActions();
 
   useEffect(() => {
     const user = getUser();
@@ -40,19 +38,31 @@ const App = () => {
   return (
     <Container>
       <Router>
+        <AppBar position="static">
+          <Toolbar>
+            <Button color="inherit" component={Link} to="/">
+              blogs
+            </Button>
+            {user ? (
+              <>
+                <Button color="inherit" component={Link} to="/create">
+                  new blog
+                </Button>
+                <Button color="inherit" component={Link} to="/users">
+                  users
+                </Button>
+                <Button color="inherit" onClick={handleLogout}>
+                  logout
+                </Button>
+              </>
+            ) : (
+              <Button color="inherit" component={Link} to="/login">
+                login
+              </Button>
+            )}
+          </Toolbar>
+        </AppBar>
         <Notification />
-        <div style={{ display: "flex", gap: "1rem" }}>
-          <Link to="/">blogs</Link>
-          {user ? (
-            <>
-              <Link to="/create">new blog</Link>
-              <Link to="/users">users</Link>
-              <button onClick={handleLogout}>logout</button>
-            </>
-          ) : (
-            <Link to="/login">login</Link>
-          )}
-        </div>
         <Routes>
           <Route
             path="/"
