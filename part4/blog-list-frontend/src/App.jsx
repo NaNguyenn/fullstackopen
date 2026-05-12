@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-
+import { Container } from "@mui/material";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Blog from "./components/Blog";
 import BlogDetail from "./components/BlogDetail";
@@ -38,72 +38,74 @@ const App = () => {
   };
 
   return (
-    <Router>
-      <Notification />
-      <div style={{ display: "flex", gap: "1rem" }}>
-        <Link to="/">blogs</Link>
-        {user ? (
-          <>
-            <Link to="/create">new blog</Link>
-            <Link to="/users">users</Link>
-            <button onClick={handleLogout}>logout</button>
-          </>
-        ) : (
-          <Link to="/login">login</Link>
-        )}
-      </div>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <ErrorBoundary>
-              <BlogList />
-            </ErrorBoundary>
-          }
-        />
-        <Route
-          path="/blogs/:id"
-          element={
-            <ErrorBoundary>
-              <BlogDetail />
-            </ErrorBoundary>
-          }
-        />
-        <Route
-          path="/create"
-          element={
-            <ErrorBoundary>
-              <CreateBlogForm />
-            </ErrorBoundary>
-          }
-        />
-        <Route
-          path="/login"
-          element={
-            <ErrorBoundary>
-              <LoginForm />
-            </ErrorBoundary>
-          }
-        />
-        <Route
-          path="/users"
-          element={
-            <ErrorBoundary>
-              <UserList />
-            </ErrorBoundary>
-          }
-        />
-        <Route
-          path="/users/:id"
-          element={
-            <ErrorBoundary>
-              <UserDetail />
-            </ErrorBoundary>
-          }
-        />
-        <Route path="*" element={<div>404 - Page not found</div>} />
-      </Routes>
-    </Router>
+    <Container>
+      <Router>
+        <Notification />
+        <div style={{ display: "flex", gap: "1rem" }}>
+          <Link to="/">blogs</Link>
+          {user ? (
+            <>
+              <Link to="/create">new blog</Link>
+              <Link to="/users">users</Link>
+              <button onClick={handleLogout}>logout</button>
+            </>
+          ) : (
+            <Link to="/login">login</Link>
+          )}
+        </div>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <ErrorBoundary>
+                <BlogList />
+              </ErrorBoundary>
+            }
+          />
+          <Route
+            path="/blogs/:id"
+            element={
+              <ErrorBoundary>
+                <BlogDetail />
+              </ErrorBoundary>
+            }
+          />
+          <Route
+            path="/create"
+            element={
+              <ErrorBoundary>
+                <CreateBlogForm />
+              </ErrorBoundary>
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <ErrorBoundary>
+                <LoginForm />
+              </ErrorBoundary>
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <ErrorBoundary>
+                <UserList />
+              </ErrorBoundary>
+            }
+          />
+          <Route
+            path="/users/:id"
+            element={
+              <ErrorBoundary>
+                <UserDetail />
+              </ErrorBoundary>
+            }
+          />
+          <Route path="*" element={<div>404 - Page not found</div>} />
+        </Routes>
+      </Router>
+    </Container>
   );
 };
 
