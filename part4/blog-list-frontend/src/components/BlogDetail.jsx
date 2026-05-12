@@ -1,4 +1,4 @@
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, TextField, Typography } from "@mui/material";
 import { useBlogDetail } from "../hooks/useBlogDetail";
 import { useField } from "../hooks/useField";
 import { useUser } from "../store/user";
@@ -42,8 +42,16 @@ const BlogDetail = () => {
             resetComment();
           }}
         >
-          <input {...comment} name="Comment" />
-          <button type="submit">add comment</button>
+          <Box sx={{ display: "flex", alignItems: "stretch", gap: 1 }}>
+            <TextField
+              {...comment}
+              name="Comment"
+              placeholder="add a comment"
+            />
+            <Button type="submit" variant="contained">
+              add comment
+            </Button>
+          </Box>
         </form>
         <ul>
           {blog.comments.map((comment, index) => (
